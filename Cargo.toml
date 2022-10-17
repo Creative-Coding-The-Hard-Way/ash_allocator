@@ -1,8 +1,19 @@
 [package]
-name = "vulkan-memory-the-hard-way"
+name = "ccthw_ash_allocator"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 ash = { version = "*", features = ["linked"] }
 thiserror = "*"
+log = "*"
+
+[dev-dependencies]
+anyhow = "*"
+flexi_logger = "*"
+assert2 = "*"
+regex = "*"
+
+[dev-dependencies.textwrap]
+features = ["terminal_size"]
+version = "*"

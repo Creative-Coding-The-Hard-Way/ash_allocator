@@ -1,3 +1,9 @@
+mod logging;
+
 pub fn setup() {
-    println!("TEST SETUP");
+    logging::setup_logger();
 }
+
+//struct TestDevice {
+//    logical_device: LogicalDevice,
+//}
