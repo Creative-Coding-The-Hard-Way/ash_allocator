@@ -120,10 +120,25 @@ dependencies = [
  "anyhow",
  "ash",
  "assert2",
+ "ccthw_ash_instance",
  "flexi_logger",
+ "indoc",
  "log",
  "regex",
+ "scopeguard",
  "textwrap",
+ "thiserror",
+]
+
+[[package]]
+name = "ccthw_ash_instance"
+version = "0.1.0"
+source = "git+https://github.com/Creative-Coding-The-Hard-Way/ash_instance.git#35d29f2028dbb983050c521eb529f387af5d2728"
+dependencies = [
+ "ash",
+ "indoc",
+ "log",
+ "regex",
  "thiserror",
 ]
 
@@ -303,6 +318,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indoc"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "adab1eaa3408fb7f0c777a73e7465fd5656136fc93b670eb6df3c88c2c1344e3"
+
+[[package]]
 name = "io-lifetimes"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -457,6 +478,12 @@ name = "rustversion"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97477e48b4cf8603ad5f7aaf897467cf42ab4218a38ef76fb14c2d6773a6d6a8"
+
+[[package]]
+name = "scopeguard"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "scratch"

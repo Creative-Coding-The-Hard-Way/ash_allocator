@@ -1,9 +1,10 @@
-use std::{fmt::Write as FmtWrite, sync::Once};
-
-use anyhow::Result;
-use flexi_logger::{DeferredNow, Logger, LoggerHandle, Record};
-use regex::Regex;
-use textwrap::{termwidth, Options};
+use {
+    anyhow::Result,
+    flexi_logger::{DeferredNow, Logger, LoggerHandle, Record},
+    regex::Regex,
+    std::{fmt::Write as FmtWrite, sync::Once},
+    textwrap::{termwidth, Options},
+};
 
 /// A global handle to the initialized flexi_logger.
 ///
