@@ -7,14 +7,14 @@ edition = "2021"
 ash = { version = "*", features = ["linked"] }
 thiserror = "*"
 log = "*"
+indoc = "*"
+anyhow = "*"
 
 [dev-dependencies]
-anyhow = "*"
 flexi_logger = "*"
 assert2 = "*"
 regex = "*"
 ccthw_ash_instance = { git = "https://github.com/Creative-Coding-The-Hard-Way/ash_instance.git" }
-indoc = "*"
 scopeguard = "*"
 
 [dev-dependencies.textwrap]
