@@ -1,7 +1,7 @@
-use ash::vk;
+use {crate::pretty_wrappers::PrettySize, ash::vk};
 
 /// A GPU memory allocation.
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub struct Allocation {
     memory: vk::DeviceMemory,
     offset_in_bytes: vk::DeviceSize,
@@ -35,6 +35,22 @@ impl Allocation {
     /// The size of the allocation in bytes.
     pub fn size_in_bytes(&self) -> vk::DeviceSize {
         self.size_in_bytes
+    }
+}
+
+impl std::fmt::Debug for Allocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Allocation")
+            .field("memory", &self.memory)
+            .field("offset_in_bytes", &PrettySize(self.offset_in_bytes))
+            .field("size_in_bytes", &PrettySize(self.size_in_bytes))
+            .finish()
+    }
+}
+
+impl std::fmt::Display for Allocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{:#?}", self))
     }
 }
 

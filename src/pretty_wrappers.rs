@@ -18,7 +18,7 @@ impl std::fmt::Debug for PrettySize {
             let size_in_units = size / unit_size_in_bytes;
             let unit_name = UNIT_NAMES[unit_pow as usize];
 
-            f.write_fmt(format_args!("{}{}", size_in_units, unit_name))
+            f.write_fmt(format_args!("{} {}", size_in_units, unit_name))
         } else {
             f.write_fmt(format_args!("{}", self.0))
         }
