@@ -15,20 +15,20 @@ pub use self::{
     device_allocator::DeviceAllocator,
 };
 
-pub struct MemoryAllocator<T: ComposableAllocator> {
-    internal_allocator: T,
+pub struct MemoryAllocator {
+    internal_allocator: Box<dyn ComposableAllocator>,
     memory_properties: MemoryProperties,
     device: ash::Device,
 }
 
-impl<T: ComposableAllocator> MemoryAllocator<T> {
+impl MemoryAllocator {
     /// Create a new memory allocator.
     ///
     /// # Safety
     ///
     /// Unsafe because the ash device must not be destroyed while the allocater
     /// still exists.
-    pub unsafe fn new(
+    pub unsafe fn new<T: ComposableAllocator + 'static>(
         instance: &ash::Instance,
         device: ash::Device,
         physical_device: vk::PhysicalDevice,
@@ -41,7 +41,7 @@ impl<T: ComposableAllocator> MemoryAllocator<T> {
             memory_properties
         );
         Self {
-            internal_allocator,
+            internal_allocator: Box::new(internal_allocator),
             memory_properties,
             device,
         }

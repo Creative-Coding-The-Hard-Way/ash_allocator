@@ -6,19 +6,25 @@ use {
 mod common;
 use {anyhow::Result, ash::vk, scopeguard::defer};
 
+unsafe fn create_allocater(
+    instance: &ash::Instance,
+    device: ash::Device,
+    physical_device: vk::PhysicalDevice,
+) -> MemoryAllocator {
+    let device_allocator = DeviceAllocator::new(device.clone());
+    MemoryAllocator::new(instance, device, physical_device, device_allocator)
+}
+
 #[test]
 pub fn allocate_some_memory() -> Result<()> {
     let device = common::setup()?;
     log::info!("{}", device);
 
     let mut allocator = unsafe {
-        let device_allocator =
-            DeviceAllocator::new(device.device.raw().clone());
-        MemoryAllocator::new(
+        create_allocater(
             device.instance.ash(),
             device.device.raw().clone(),
             *device.device.physical_device().raw(),
-            device_allocator,
         )
     };
 

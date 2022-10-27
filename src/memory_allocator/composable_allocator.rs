@@ -23,3 +23,32 @@ pub trait ComposableAllocator {
     ///    are still referencing it.
     unsafe fn free(&mut self, allocation: Allocation);
 }
+
+impl ComposableAllocator for Box<dyn ComposableAllocator> {
+    unsafe fn allocate(
+        &mut self,
+        allocation_requirements: AllocationRequirements,
+    ) -> Result<Allocation, AllocatorError> {
+        self.as_mut().allocate(allocation_requirements)
+    }
+
+    unsafe fn free(&mut self, allocation: Allocation) {
+        self.as_mut().free(allocation)
+    }
+}
+
+impl<T> ComposableAllocator for Box<T>
+where
+    T: ComposableAllocator,
+{
+    unsafe fn allocate(
+        &mut self,
+        allocation_requirements: AllocationRequirements,
+    ) -> Result<Allocation, AllocatorError> {
+        self.as_mut().allocate(allocation_requirements)
+    }
+
+    unsafe fn free(&mut self, allocation: Allocation) {
+        self.as_mut().free(allocation)
+    }
+}
