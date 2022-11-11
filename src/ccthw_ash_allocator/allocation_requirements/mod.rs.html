@@ -132,6 +132,90 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
 </pre><pre class="rust"><code><span class="kw">use</span> {
     <span class="kw">crate</span>::{<span class="ident">AllocatorError</span>, <span class="ident">PrettyBitflag</span>, <span class="ident">PrettySize</span>},
     <span class="ident">ash::vk</span>,
@@ -172,19 +256,19 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_buffer</span>(
         <span class="ident">device</span>: <span class="kw-2">&amp;</span><span class="ident">ash::Device</span>,
         <span class="ident">memory_types</span>: <span class="kw-2">&amp;</span>[<span class="ident">vk::MemoryType</span>],
-        <span class="ident">memory_properties</span>: <span class="ident">vk::MemoryPropertyFlags</span>,
+        <span class="ident">memory_property_flags</span>: <span class="ident">vk::MemoryPropertyFlags</span>,
         <span class="ident">buffer</span>: <span class="ident">vk::Buffer</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">AllocatorError</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dedicated_requirements</span> <span class="op">=</span>
-                <span class="ident">vk::MemoryDedicatedRequirements::default</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">memory_requirements2</span> <span class="op">=</span> <span class="ident">vk::MemoryRequirements2</span> {
-                <span class="ident">p_next</span>: <span class="kw-2">&amp;mut</span> <span class="ident">dedicated_requirements</span>
-                    <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">vk::MemoryDedicatedRequirements</span>
-                    <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">std::ffi::c_void</span>,
-                ..<span class="ident">Default::default</span>()
-            };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dedicated_requirements</span> <span class="op">=</span>
+            <span class="ident">vk::MemoryDedicatedRequirements::default</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">memory_requirements2</span> <span class="op">=</span> <span class="ident">vk::MemoryRequirements2</span> {
+            <span class="ident">p_next</span>: <span class="kw-2">&amp;mut</span> <span class="ident">dedicated_requirements</span>
+                <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">vk::MemoryDedicatedRequirements</span>
+                <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">std::ffi::c_void</span>,
+            ..<span class="ident">Default::default</span>()
+        };
 
+        <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">requirements_info</span> <span class="op">=</span> <span class="ident">vk::BufferMemoryRequirementsInfo2</span> {
                 <span class="ident">buffer</span>,
                 ..<span class="ident">Default::default</span>()
@@ -193,52 +277,68 @@
                 <span class="kw-2">&amp;</span><span class="ident">requirements_info</span>,
                 <span class="kw-2">&amp;mut</span> <span class="ident">memory_requirements2</span>,
             );
-
-            <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">memory_types</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">enumerate</span>()
-                .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">index</span>, <span class="ident">memory_type</span>)<span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">type_bits</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">index</span>;
-                    <span class="kw">let</span> <span class="ident">is_required_type</span> <span class="op">=</span> <span class="ident">type_bits</span>
-                        <span class="op">&amp;</span> <span class="ident">memory_requirements2</span>
-                            .<span class="ident">memory_requirements</span>
-                            .<span class="ident">memory_type_bits</span>
-                        <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
-
-                    <span class="kw">let</span> <span class="ident">has_required_properties</span> <span class="op">=</span>
-                        <span class="ident">memory_type</span>.<span class="ident">property_flags</span>.<span class="ident">contains</span>(<span class="ident">memory_properties</span>);
-
-                    <span class="ident">is_required_type</span> <span class="op">&amp;&amp;</span> <span class="ident">has_required_properties</span>
-                })
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">_memory_type</span>)<span class="op">|</span> <span class="ident">i</span>)
-                .<span class="ident">ok_or</span>(<span class="ident">AllocatorError::NoSupportedTypeForProperties</span>(
-                    <span class="ident">PrettyBitflag</span>(
-                        <span class="ident">memory_requirements2</span>
-                            .<span class="ident">memory_requirements</span>
-                            .<span class="ident">memory_type_bits</span>,
-                    ),
-                    <span class="ident">memory_properties</span>,
-                ))<span class="question-mark">?</span>;
-
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-                <span class="ident">size_in_bytes</span>: <span class="ident">memory_requirements2</span>.<span class="ident">memory_requirements</span>.<span class="ident">size</span>,
-                <span class="ident">alignment</span>: <span class="ident">memory_requirements2</span>.<span class="ident">memory_requirements</span>.<span class="ident">alignment</span>,
-                <span class="ident">memory_type_bits</span>: <span class="ident">memory_requirements2</span>
-                    .<span class="ident">memory_requirements</span>
-                    .<span class="ident">memory_type_bits</span>,
-                <span class="ident">memory_type_index</span>: <span class="ident">index</span>,
-                <span class="ident">memory_properties</span>,
-                <span class="ident">prefers_dedicated_allocation</span>: <span class="ident">dedicated_requirements</span>
-                    .<span class="ident">prefers_dedicated_allocation</span>
-                    <span class="op">==</span> <span class="ident">vk::TRUE</span>,
-                <span class="ident">requires_dedicated_allocation</span>: <span class="ident">dedicated_requirements</span>
-                    .<span class="ident">requires_dedicated_allocation</span>
-                    <span class="op">==</span> <span class="ident">vk::TRUE</span>,
-                <span class="ident">dedicated_resource_handle</span>: <span class="ident">DedicatedResourceHandle::Buffer</span>(
-                    <span class="ident">buffer</span>,
-                ),
-            })
         }
+
+        <span class="kw">let</span> <span class="ident">memory_type_index</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::pick_memory_type_index</span>(
+            <span class="ident">memory_types</span>,
+            <span class="kw-2">&amp;</span><span class="ident">memory_requirements2</span>.<span class="ident">memory_requirements</span>,
+            <span class="ident">memory_property_flags</span>,
+        )<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_memory_requirements</span>(
+            <span class="kw-2">&amp;</span><span class="ident">dedicated_requirements</span>,
+            <span class="kw-2">&amp;</span><span class="ident">memory_requirements2</span>.<span class="ident">memory_requirements</span>,
+            <span class="ident">memory_type_index</span>,
+            <span class="ident">memory_property_flags</span>,
+            <span class="ident">DedicatedResourceHandle::Buffer</span>(<span class="ident">buffer</span>),
+        ))
+    }
+
+    <span class="doccomment">/// Get the memory requirements for a given image.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Params</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * `device` - the device used to create and interact with GPU resources</span>
+    <span class="doccomment">/// * `memory_types` - the memory types available on the physical device</span>
+    <span class="doccomment">/// * `memory_properties` - the memory properties required by the allocation</span>
+    <span class="doccomment">/// * `image` - the image which needs a memory allocation</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_image</span>(
+        <span class="ident">device</span>: <span class="kw-2">&amp;</span><span class="ident">ash::Device</span>,
+        <span class="ident">memory_types</span>: <span class="kw-2">&amp;</span>[<span class="ident">vk::MemoryType</span>],
+        <span class="ident">memory_property_flags</span>: <span class="ident">vk::MemoryPropertyFlags</span>,
+        <span class="ident">image</span>: <span class="ident">vk::Image</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">AllocatorError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dedicated_requirements</span> <span class="op">=</span>
+            <span class="ident">vk::MemoryDedicatedRequirements::default</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">memory_requirements2</span> <span class="op">=</span> <span class="ident">vk::MemoryRequirements2</span> {
+            <span class="ident">p_next</span>: <span class="kw-2">&amp;mut</span> <span class="ident">dedicated_requirements</span>
+                <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">vk::MemoryDedicatedRequirements</span>
+                <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">std::ffi::c_void</span>,
+            ..<span class="ident">Default::default</span>()
+        };
+
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">requirements_info</span> <span class="op">=</span> <span class="ident">vk::ImageMemoryRequirementsInfo2</span> {
+                <span class="ident">image</span>,
+                ..<span class="ident">Default::default</span>()
+            };
+            <span class="ident">device</span>.<span class="ident">get_image_memory_requirements2</span>(
+                <span class="kw-2">&amp;</span><span class="ident">requirements_info</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">memory_requirements2</span>,
+            );
+        }
+
+        <span class="kw">let</span> <span class="ident">memory_type_index</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::pick_memory_type_index</span>(
+            <span class="ident">memory_types</span>,
+            <span class="kw-2">&amp;</span><span class="ident">memory_requirements2</span>.<span class="ident">memory_requirements</span>,
+            <span class="ident">memory_property_flags</span>,
+        )<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_memory_requirements</span>(
+            <span class="kw-2">&amp;</span><span class="ident">dedicated_requirements</span>,
+            <span class="kw-2">&amp;</span><span class="ident">memory_requirements2</span>.<span class="ident">memory_requirements</span>,
+            <span class="ident">memory_type_index</span>,
+            <span class="ident">memory_property_flags</span>,
+            <span class="ident">DedicatedResourceHandle::Image</span>(<span class="ident">image</span>),
+        ))
     }
 }
 
@@ -264,6 +364,74 @@
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">AllocationRequirements</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{:#?}&quot;</span>, <span class="self">self</span>))
+    }
+}
+
+<span class="comment">// Private API</span>
+<span class="comment">// -----------</span>
+
+<span class="kw">impl</span> <span class="ident">AllocationRequirements</span> {
+    <span class="doccomment">/// Construct the memory requirements struct from raw requirements.</span>
+    <span class="kw">fn</span> <span class="ident">from_memory_requirements</span>(
+        <span class="ident">dedicated_requirements</span>: <span class="kw-2">&amp;</span><span class="ident">vk::MemoryDedicatedRequirements</span>,
+        <span class="ident">memory_requirements</span>: <span class="kw-2">&amp;</span><span class="ident">vk::MemoryRequirements</span>,
+        <span class="ident">memory_type_index</span>: <span class="ident">usize</span>,
+        <span class="ident">memory_property_flags</span>: <span class="ident">vk::MemoryPropertyFlags</span>,
+        <span class="ident">dedicated_resource_handle</span>: <span class="ident">DedicatedResourceHandle</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">size_in_bytes</span>: <span class="ident">memory_requirements</span>.<span class="ident">size</span>,
+            <span class="ident">alignment</span>: <span class="ident">memory_requirements</span>.<span class="ident">alignment</span>,
+            <span class="ident">memory_type_bits</span>: <span class="ident">memory_requirements</span>.<span class="ident">memory_type_bits</span>,
+            <span class="ident">memory_type_index</span>,
+            <span class="ident">memory_properties</span>: <span class="ident">memory_property_flags</span>,
+            <span class="ident">prefers_dedicated_allocation</span>: <span class="ident">dedicated_requirements</span>
+                .<span class="ident">prefers_dedicated_allocation</span>
+                <span class="op">==</span> <span class="ident">vk::TRUE</span>,
+            <span class="ident">requires_dedicated_allocation</span>: <span class="ident">dedicated_requirements</span>
+                .<span class="ident">requires_dedicated_allocation</span>
+                <span class="op">==</span> <span class="ident">vk::TRUE</span>,
+            <span class="ident">dedicated_resource_handle</span>,
+        }
+    }
+
+    <span class="doccomment">/// Pick the optimal memory type for the given memory requirements and</span>
+    <span class="doccomment">/// property flags.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Params</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - `memory_types` - a slice of all avialable memory types</span>
+    <span class="doccomment">/// - `memory_requirements` - the memory requirements for the resource</span>
+    <span class="doccomment">/// - `memory_property_flags` - the required memory properties</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Returns</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A result containing either the index of the suitable memory type in</span>
+    <span class="doccomment">/// `memory_types`, or an [AllocatorError] indicating that no suitable</span>
+    <span class="doccomment">/// memory type could be found.</span>
+    <span class="kw">fn</span> <span class="ident">pick_memory_type_index</span>(
+        <span class="ident">memory_types</span>: <span class="kw-2">&amp;</span>[<span class="ident">vk::MemoryType</span>],
+        <span class="ident">memory_requirements</span>: <span class="kw-2">&amp;</span><span class="ident">vk::MemoryRequirements</span>,
+        <span class="ident">memory_property_flags</span>: <span class="ident">vk::MemoryPropertyFlags</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">AllocatorError</span><span class="op">&gt;</span> {
+        <span class="ident">memory_types</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">enumerate</span>()
+            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">index</span>, <span class="ident">memory_type</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">type_bits</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">index</span>;
+                <span class="kw">let</span> <span class="ident">is_required_type</span> <span class="op">=</span>
+                    <span class="ident">type_bits</span> <span class="op">&amp;</span> <span class="ident">memory_requirements</span>.<span class="ident">memory_type_bits</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
+
+                <span class="kw">let</span> <span class="ident">has_required_properties</span> <span class="op">=</span>
+                    <span class="ident">memory_type</span>.<span class="ident">property_flags</span>.<span class="ident">contains</span>(<span class="ident">memory_property_flags</span>);
+
+                <span class="ident">is_required_type</span> <span class="op">&amp;&amp;</span> <span class="ident">has_required_properties</span>
+            })
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">_memory_type</span>)<span class="op">|</span> <span class="ident">i</span>)
+            .<span class="ident">ok_or</span>(<span class="ident">AllocatorError::NoSupportedTypeForProperties</span>(
+                <span class="ident">PrettyBitflag</span>(<span class="ident">memory_requirements</span>.<span class="ident">memory_type_bits</span>),
+                <span class="ident">memory_property_flags</span>,
+            ))
     }
 }
 </code></pre></div>

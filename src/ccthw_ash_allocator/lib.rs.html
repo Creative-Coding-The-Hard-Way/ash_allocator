@@ -18,6 +18,8 @@
 <span id="18">18</span>
 <span id="19">19</span>
 <span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A general purpose Vulkan Memory allocator, written from scratch the hard</span>
 <span class="doccomment">//! way.</span>
 
@@ -35,7 +37,9 @@
         <span class="ident">AllocationRequirements</span>, <span class="ident">DedicatedResourceHandle</span>,
     },
     <span class="ident">error::AllocatorError</span>,
-    <span class="ident">memory_allocator</span>::{<span class="ident">ComposableAllocator</span>, <span class="ident">DeviceAllocator</span>, <span class="ident">MemoryAllocator</span>},
+    <span class="ident">memory_allocator</span>::{
+        <span class="ident">ComposableAllocator</span>, <span class="ident">DeviceAllocator</span>, <span class="ident">MemoryAllocator</span>, <span class="ident">TraceAllocator</span>,
+    },
     <span class="ident">memory_properties::MemoryProperties</span>,
 };
 </code></pre></div>

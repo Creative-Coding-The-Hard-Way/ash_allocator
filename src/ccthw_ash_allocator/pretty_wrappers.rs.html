@@ -67,7 +67,7 @@
             <span class="kw">let</span> <span class="ident">size_in_units</span> <span class="op">=</span> <span class="ident">size</span> <span class="op">/</span> <span class="ident">unit_size_in_bytes</span>;
             <span class="kw">let</span> <span class="ident">unit_name</span> <span class="op">=</span> <span class="ident">UNIT_NAMES</span>[<span class="ident">unit_pow</span> <span class="kw">as</span> <span class="ident">usize</span>];
 
-            <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">size_in_units</span>, <span class="ident">unit_name</span>))
+            <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">size_in_units</span>, <span class="ident">unit_name</span>))
         } <span class="kw">else</span> {
             <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>))
         }
