@@ -1,5 +1,9 @@
+#[cfg(test)]
+mod null_allocator;
+
 mod composable_allocator;
 mod device_allocator;
+mod trace_allocator;
 
 use {
     crate::{
@@ -10,9 +14,11 @@ use {
     ash::vk,
 };
 
+#[cfg(test)]
+use self::null_allocator::NullAllocator;
 pub use self::{
     composable_allocator::ComposableAllocator,
-    device_allocator::DeviceAllocator,
+    device_allocator::DeviceAllocator, trace_allocator::TraceAllocator,
 };
 
 /// The top-level interface for allocating GPU memory.

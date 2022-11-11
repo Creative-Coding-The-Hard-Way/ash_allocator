@@ -6,6 +6,7 @@ pub struct Allocation {
     memory: vk::DeviceMemory,
     offset_in_bytes: vk::DeviceSize,
     size_in_bytes: vk::DeviceSize,
+    memory_type_index: usize,
 }
 
 // Public API
@@ -61,13 +62,20 @@ impl Allocation {
     /// Create a new memory allocation.
     pub(crate) fn new(
         memory: vk::DeviceMemory,
+        memory_type_index: usize,
         offset_in_bytes: vk::DeviceSize,
         size_in_bytes: vk::DeviceSize,
     ) -> Self {
         Self {
             memory,
+            memory_type_index,
             offset_in_bytes,
             size_in_bytes,
         }
+    }
+
+    /// The index for the memory type used to allocate this chunk of memory.
+    pub(crate) fn memory_type_index(&self) -> usize {
+        self.memory_type_index
     }
 }

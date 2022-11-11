@@ -1,5 +1,5 @@
 use {
-    ccthw_ash_allocator::{DeviceAllocator, MemoryAllocator},
+    ccthw_ash_allocator::{DeviceAllocator, MemoryAllocator, TraceAllocator},
     ccthw_ash_instance::VulkanHandle,
 };
 
@@ -12,7 +12,13 @@ unsafe fn create_allocater(
     physical_device: vk::PhysicalDevice,
 ) -> MemoryAllocator {
     let device_allocator = DeviceAllocator::new(device.clone());
-    MemoryAllocator::new(instance, device, physical_device, device_allocator)
+    let trace_allocator = TraceAllocator::new(
+        instance,
+        physical_device,
+        device_allocator,
+        "Device Allocator",
+    );
+    MemoryAllocator::new(instance, device, physical_device, trace_allocator)
 }
 
 #[test]

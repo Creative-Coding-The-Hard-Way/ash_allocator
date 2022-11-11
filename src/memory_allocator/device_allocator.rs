@@ -50,8 +50,12 @@ impl ComposableAllocator for DeviceAllocator {
                     allocation_requirements,
                 )
             })?;
-        let allocation =
-            Allocation::new(memory, 0, allocation_requirements.size_in_bytes);
+        let allocation = Allocation::new(
+            memory,
+            allocation_requirements.memory_type_index,
+            0,
+            allocation_requirements.size_in_bytes,
+        );
         Ok(allocation)
     }
 

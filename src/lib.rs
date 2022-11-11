@@ -15,6 +15,8 @@ pub use self::{
         AllocationRequirements, DedicatedResourceHandle,
     },
     error::AllocatorError,
-    memory_allocator::{ComposableAllocator, DeviceAllocator, MemoryAllocator},
+    memory_allocator::{
+        ComposableAllocator, DeviceAllocator, MemoryAllocator, TraceAllocator,
+    },
     memory_properties::MemoryProperties,
 };
