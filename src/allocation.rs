@@ -1,4 +1,8 @@
-use {crate::pretty_wrappers::PrettySize, ash::vk};
+use {
+    crate::{pretty_wrappers::PrettySize, AllocatorError},
+    anyhow::Context,
+    ash::vk,
+};
 
 /// A GPU memory allocation.
 #[derive(Eq, PartialEq, Copy, Clone)]
@@ -36,6 +40,47 @@ impl Allocation {
     /// The size of the allocation in bytes.
     pub fn size_in_bytes(&self) -> vk::DeviceSize {
         self.size_in_bytes
+    }
+
+    /// Map the allocation into application address space.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe because:
+    /// - The application must synchronize access to the underlying device
+    ///   memory. All previously submitted GPU commands which write to the
+    ///   memory owned by this alloctaion must be finished before the host reads
+    ///   or writes from the mapped pointer.
+    /// - Synchronization requirements vary depending on the HOST_COHERENT
+    ///   memory property. See the Vulkan spec for details.
+    ///
+    /// For details, see the specification at:
+    /// https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkMapMemory.html
+    pub unsafe fn map(
+        &self,
+        device: &ash::Device,
+    ) -> Result<*mut std::ffi::c_void, AllocatorError> {
+        let mapped_ptr = device
+            .map_memory(
+                self.memory,
+                self.offset_in_bytes,
+                self.size_in_bytes,
+                vk::MemoryMapFlags::empty(),
+            )
+            .with_context(|| "Unable to map a memory allocation!")?;
+        Ok(mapped_ptr)
+    }
+
+    /// Unmap the allocation.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe because:
+    /// - The pointer returned by map() must not be used after the call to
+    ///   unmap()
+    /// - The application must synchronize all host access to the allocation.
+    pub unsafe fn unmap(&self, device: &ash::Device) {
+        device.unmap_memory(self.memory)
     }
 }
 

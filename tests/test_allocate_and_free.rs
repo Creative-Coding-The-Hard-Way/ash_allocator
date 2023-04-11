@@ -29,8 +29,8 @@ pub fn allocate_buffer() -> Result<()> {
     let mut allocator = unsafe {
         create_allocater(
             device.instance.ash(),
-            device.device.raw().clone(),
-            *device.device.physical_device().raw(),
+            device.logical_device.raw().clone(),
+            *device.logical_device.physical_device().raw(),
         )
     };
 
@@ -46,8 +46,7 @@ pub fn allocate_buffer() -> Result<()> {
         };
         allocator.allocate_buffer(
             &create_info,
-            vk::MemoryPropertyFlags::HOST_VISIBLE
-                | vk::MemoryPropertyFlags::HOST_COHERENT,
+            vk::MemoryPropertyFlags::DEVICE_LOCAL,
         )?
     };
     defer! { unsafe { allocator.free_buffer(buffer, allocation) }; }
@@ -65,8 +64,8 @@ pub fn allocate_image() -> Result<()> {
     let mut allocator = unsafe {
         create_allocater(
             device.instance.ash(),
-            device.device.raw().clone(),
-            *device.device.physical_device().raw(),
+            device.logical_device.raw().clone(),
+            *device.logical_device.physical_device().raw(),
         )
     };
 
@@ -93,8 +92,7 @@ pub fn allocate_image() -> Result<()> {
         };
         allocator.allocate_image(
             &create_info,
-            vk::MemoryPropertyFlags::HOST_VISIBLE
-                | vk::MemoryPropertyFlags::HOST_COHERENT,
+            vk::MemoryPropertyFlags::DEVICE_LOCAL,
         )?
     };
     defer! { unsafe { allocator.free_image(image, allocation) }; }

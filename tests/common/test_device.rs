@@ -14,7 +14,7 @@ use {
 #[derive(Debug)]
 pub struct TestDevice {
     pub transfer_queue: vk::Queue,
-    pub device: LogicalDevice,
+    pub logical_device: LogicalDevice,
     pub instance: VulkanInstance,
 }
 
@@ -63,7 +63,7 @@ impl TestDevice {
         Ok(Self {
             transfer_queue,
             instance,
-            device,
+            logical_device: device,
         })
     }
 }
@@ -72,18 +72,18 @@ impl std::ops::Deref for TestDevice {
     type Target = ash::Device;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { self.device.raw() }
+        unsafe { self.logical_device.raw() }
     }
 }
 
 impl Drop for TestDevice {
     fn drop(&mut self) {
         unsafe {
-            self.device
+            self.logical_device
                 .raw()
                 .device_wait_idle()
                 .expect("Error while waiting for the device to idle!");
-            self.device.destroy();
+            self.logical_device.destroy();
             self.instance.destroy();
         }
     }
@@ -102,7 +102,7 @@ impl std::fmt::Display for TestDevice {
 
                 {}"
             ),
-            self.transfer_queue, self.device, self.instance,
+            self.transfer_queue, self.logical_device, self.instance,
         ))
     }
 }
