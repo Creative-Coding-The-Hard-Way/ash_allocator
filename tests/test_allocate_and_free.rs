@@ -8,7 +8,7 @@ use {
 mod common;
 use {anyhow::Result, ash::vk, scopeguard::defer};
 
-unsafe fn create_allocater(
+unsafe fn create_allocator(
     instance: &ash::Instance,
     device: ash::Device,
     physical_device: vk::PhysicalDevice,
@@ -29,7 +29,7 @@ pub fn allocate_buffer() -> Result<()> {
     log::info!("{}", device);
 
     let mut allocator = unsafe {
-        create_allocater(
+        create_allocator(
             device.instance.ash(),
             device.logical_device.raw().clone(),
             *device.logical_device.physical_device().raw(),
@@ -51,9 +51,9 @@ pub fn allocate_buffer() -> Result<()> {
             vk::MemoryPropertyFlags::DEVICE_LOCAL,
         )?
     };
-    defer! { unsafe { allocator.free_buffer(buffer, allocation) }; }
+    defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) }; }
 
-    log::info!("{:#?}", allocation);
+    log::info!("{:#?}", &allocation);
 
     Ok(())
 }
@@ -64,7 +64,7 @@ pub fn allocate_image() -> Result<()> {
     log::info!("{}", device);
 
     let mut allocator = unsafe {
-        create_allocater(
+        create_allocator(
             device.instance.ash(),
             device.logical_device.raw().clone(),
             *device.logical_device.physical_device().raw(),
@@ -97,9 +97,9 @@ pub fn allocate_image() -> Result<()> {
             vk::MemoryPropertyFlags::DEVICE_LOCAL,
         )?
     };
-    defer! { unsafe { allocator.free_image(image, allocation) }; }
+    defer! { unsafe { allocator.free_image(image, allocation.clone()) }; }
 
-    log::info!("Image Memory {}", allocation);
+    log::info!("Image Memory {}", &allocation);
 
     Ok(())
 }

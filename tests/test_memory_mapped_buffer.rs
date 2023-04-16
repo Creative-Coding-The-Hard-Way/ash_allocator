@@ -9,7 +9,7 @@ use {
 mod common;
 use {anyhow::Result, ash::vk, scopeguard::defer};
 
-unsafe fn create_allocater(
+unsafe fn create_allocator(
     instance: &ash::Instance,
     device: ash::Device,
     physical_device: vk::PhysicalDevice,
@@ -35,7 +35,7 @@ pub fn test_mapped_buffer() -> Result<()> {
     log::info!("{}", device);
 
     let mut allocator = unsafe {
-        create_allocater(
+        create_allocator(
             device.instance.ash(),
             device.logical_device.raw().clone(),
             *device.logical_device.physical_device().raw(),
@@ -58,7 +58,7 @@ pub fn test_mapped_buffer() -> Result<()> {
                 | vk::MemoryPropertyFlags::HOST_COHERENT,
         )?
     };
-    defer! { unsafe { allocator.free_buffer(buffer, allocation) }; }
+    defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) }; }
 
     // Map the memory and write a value into it. Then unmap the memory.
     {
@@ -77,7 +77,7 @@ pub fn test_mapped_buffer() -> Result<()> {
         sliced[0].value = 1337;
 
         unsafe {
-            allocation.unmap(device.logical_device.raw());
+            allocation.unmap(device.logical_device.raw())?;
         }
     }
 
@@ -99,9 +99,57 @@ pub fn test_mapped_buffer() -> Result<()> {
         assert_eq!(value, 1337);
 
         unsafe {
-            allocation.unmap(device.logical_device.raw());
+            allocation.unmap(device.logical_device.raw())?;
         }
     }
+
+    Ok(())
+}
+
+#[test]
+pub fn test_repeated_mapping() -> Result<()> {
+    let device = common::setup()?;
+    log::info!("{}", device);
+
+    let mut allocator = unsafe {
+        create_allocator(
+            device.instance.ash(),
+            device.logical_device.raw().clone(),
+            *device.logical_device.physical_device().raw(),
+        )
+    };
+
+    let (buffer, allocation) = unsafe {
+        let create_info = vk::BufferCreateInfo {
+            flags: vk::BufferCreateFlags::empty(),
+            usage: vk::BufferUsageFlags::STORAGE_BUFFER,
+            size: std::mem::size_of::<ExampleData>() as u64,
+            sharing_mode: vk::SharingMode::EXCLUSIVE,
+            queue_family_index_count: 0,
+            p_queue_family_indices: std::ptr::null(),
+            ..Default::default()
+        };
+        allocator.allocate_buffer(
+            &create_info,
+            vk::MemoryPropertyFlags::HOST_VISIBLE
+                | vk::MemoryPropertyFlags::HOST_COHERENT,
+        )?
+    };
+    defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) } };
+
+    log::info!("Allocation before mapping: {}", &allocation);
+    let ptr_a = unsafe { allocation.map(device.logical_device.raw())? };
+    log::info!("Allocation after one mapping: {}", &allocation);
+    let ptr_b = unsafe { allocation.map(device.logical_device.raw())? };
+    log::info!("Allocation after both mappings: {}", &allocation);
+
+    assert_eq!(ptr_a, ptr_b);
+
+    unsafe {
+        allocation.unmap(device.logical_device.raw())?;
+        allocation.unmap(device.logical_device.raw())?;
+    }
+    log::info!("Allocation after unmapping: {}", &allocation);
 
     Ok(())
 }

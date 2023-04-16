@@ -1,6 +1,7 @@
 use {
     crate::{
-        Allocation, AllocationRequirements, AllocatorError, ComposableAllocator,
+        Allocation, AllocationRequirements, AllocatorError,
+        ComposableAllocator, DeviceMemory,
     },
     anyhow::Context,
     ash::vk,
@@ -51,7 +52,7 @@ impl ComposableAllocator for DeviceAllocator {
                 )
             })?;
         let allocation = Allocation::new(
-            memory,
+            DeviceMemory::new(memory),
             allocation_requirements.memory_type_index,
             0,
             allocation_requirements.size_in_bytes,

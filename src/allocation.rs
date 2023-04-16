@@ -1,13 +1,12 @@
 use {
-    crate::{pretty_wrappers::PrettySize, AllocatorError},
-    anyhow::Context,
+    crate::{pretty_wrappers::PrettySize, AllocatorError, DeviceMemory},
     ash::vk,
 };
 
 /// A GPU memory allocation.
-#[derive(Eq, PartialEq, Copy, Clone)]
+#[derive(Clone)]
 pub struct Allocation {
-    memory: vk::DeviceMemory,
+    device_memory: DeviceMemory,
     offset_in_bytes: vk::DeviceSize,
     size_in_bytes: vk::DeviceSize,
     memory_type_index: usize,
@@ -25,7 +24,7 @@ impl Allocation {
     /// incorrect to free the memory by any means other than to return the
     /// full allocation instance to the memory allocator.
     pub unsafe fn memory(&self) -> vk::DeviceMemory {
-        self.memory
+        self.device_memory.memory()
     }
 
     /// The offset where this allocation begins in device memory.
@@ -60,15 +59,14 @@ impl Allocation {
         &self,
         device: &ash::Device,
     ) -> Result<*mut std::ffi::c_void, AllocatorError> {
-        let mapped_ptr = device
-            .map_memory(
-                self.memory,
-                self.offset_in_bytes,
-                self.size_in_bytes,
-                vk::MemoryMapFlags::empty(),
-            )
-            .with_context(|| "Unable to map a memory allocation!")?;
-        Ok(mapped_ptr)
+        // Get the ptr to the start of the device memory
+        let base_ptr = self.device_memory.map(device)?;
+        let base_ptr_address = base_ptr as usize;
+
+        // compute the address for this allocation
+        let with_offset = base_ptr_address + self.offset_in_bytes() as usize;
+
+        Ok(with_offset as *mut std::ffi::c_void)
     }
 
     /// Unmap the allocation.
@@ -79,15 +77,18 @@ impl Allocation {
     /// - The pointer returned by map() must not be used after the call to
     ///   unmap()
     /// - The application must synchronize all host access to the allocation.
-    pub unsafe fn unmap(&self, device: &ash::Device) {
-        device.unmap_memory(self.memory)
+    pub unsafe fn unmap(
+        &self,
+        device: &ash::Device,
+    ) -> Result<(), AllocatorError> {
+        self.device_memory.unmap(device)
     }
 }
 
 impl std::fmt::Debug for Allocation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Allocation")
-            .field("memory", &self.memory)
+            .field("device_memory", &self.device_memory)
             .field("offset_in_bytes", &PrettySize(self.offset_in_bytes))
             .field("size_in_bytes", &PrettySize(self.size_in_bytes))
             .finish()
@@ -106,13 +107,13 @@ impl std::fmt::Display for Allocation {
 impl Allocation {
     /// Create a new memory allocation.
     pub(crate) fn new(
-        memory: vk::DeviceMemory,
+        device_memory: DeviceMemory,
         memory_type_index: usize,
         offset_in_bytes: vk::DeviceSize,
         size_in_bytes: vk::DeviceSize,
     ) -> Self {
         Self {
-            memory,
+            device_memory,
             memory_type_index,
             offset_in_bytes,
             size_in_bytes,
