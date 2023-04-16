@@ -9,6 +9,7 @@ thiserror = "*"
 log = "*"
 indoc = "*"
 anyhow = "*"
+num = "*"
 
 [dev-dependencies]
 flexi_logger = "*"

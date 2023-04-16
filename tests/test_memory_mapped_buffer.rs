@@ -56,6 +56,7 @@ pub fn test_mapped_buffer() -> Result<()> {
             &create_info,
             vk::MemoryPropertyFlags::HOST_VISIBLE
                 | vk::MemoryPropertyFlags::HOST_COHERENT,
+            std::mem::size_of::<ExampleData>(),
         )?
     };
     defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) }; }
@@ -133,6 +134,7 @@ pub fn test_repeated_mapping() -> Result<()> {
             &create_info,
             vk::MemoryPropertyFlags::HOST_VISIBLE
                 | vk::MemoryPropertyFlags::HOST_COHERENT,
+            std::mem::size_of::<ExampleData>(),
         )?
     };
     defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) } };

@@ -49,6 +49,7 @@ pub fn allocate_buffer() -> Result<()> {
         allocator.allocate_buffer(
             &create_info,
             vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            1,
         )?
     };
     defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) }; }
