@@ -1,3 +1,5 @@
+//! Tests where memory for images and buffers is allocated and freed.
+
 use {
     ccthw_ash_allocator::{DeviceAllocator, MemoryAllocator, TraceAllocator},
     ccthw_ash_instance::VulkanHandle,

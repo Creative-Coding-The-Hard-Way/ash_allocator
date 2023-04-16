@@ -1,3 +1,6 @@
+//! Tests for creating a CPU accessible buffer, then confirming that data can
+//! be written and read from the buffer.
+
 use {
     ccthw_ash_allocator::{DeviceAllocator, MemoryAllocator, TraceAllocator},
     ccthw_ash_instance::VulkanHandle,
