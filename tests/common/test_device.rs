@@ -30,11 +30,19 @@ impl TestDevice {
     /// * `features` - The physical device features required by the test.
     pub fn new(features: PhysicalDeviceFeatures) -> Result<Self> {
         let instance = unsafe {
-            VulkanInstance::new(
+            let with_layer = VulkanInstance::new(
                 &[],
                 &["VK_LAYER_KHRONOS_validation".to_owned()],
-            )
-            .context("Error creating the Vulkan Instance for the test device")?
+            );
+            if with_layer.is_ok() {
+                with_layer.unwrap()
+            } else {
+                log::warn!("Validation layer is not available!");
+                log::warn!("Falling back to an instance without the layer.");
+                VulkanInstance::new(&[], &[]).context(
+                    "Error creating the Vulkan Instance for the test device",
+                )?
+            }
         };
         let physical_device = Self::pick_physical_device(&instance, features)?;
         let transfer_queue_family_index =
