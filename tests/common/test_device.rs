@@ -34,8 +34,8 @@ impl TestDevice {
                 &[],
                 &["VK_LAYER_KHRONOS_validation".to_owned()],
             );
-            if with_layer.is_ok() {
-                with_layer.unwrap()
+            if let Ok(instance) = with_layer {
+                instance
             } else {
                 log::warn!("Validation layer is not available!");
                 log::warn!("Falling back to an instance without the layer.");

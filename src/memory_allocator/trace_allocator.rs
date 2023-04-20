@@ -8,18 +8,10 @@ use {
     std::collections::HashMap,
 };
 
+#[derive(Default)]
 struct Metrics {
     total_allocations: u32,
     leaked_allocations: u32,
-}
-
-impl Default for Metrics {
-    fn default() -> Self {
-        Self {
-            total_allocations: 0,
-            leaked_allocations: 0,
-        }
-    }
 }
 
 impl Metrics {
