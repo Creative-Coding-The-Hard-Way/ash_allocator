@@ -120,6 +120,44 @@ impl Allocation {
         }
     }
 
+    /// Create an allocation which refers to the same underlying device memory.
+    ///
+    /// # Params
+    ///
+    /// * allocation: The original memory allocation which will be subdivided.
+    /// * offset: The offset relative to the original allocation's offset.
+    /// * size_in_bytes: The size of the suballocation.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe because:
+    /// * This constructor only checks that the suballocation fits within the
+    ///   original allocation. There is nothing to prevent aliasing. The caller
+    ///   must have their own strategy for tracking the original allocation's
+    ///   usage and synchronizing access.
+    /// * Freeing the device memory will make interacting with any Allocation
+    ///   struct behave badly. The caller must have some strategy for tracking
+    ///   suballocations and ensuring they're all cleaned up before allowing the
+    ///   original allocation to be freed.
+    pub(crate) unsafe fn suballocate(
+        allocation: &Allocation,
+        offset: vk::DeviceSize,
+        size_in_bytes: vk::DeviceSize,
+    ) -> Self {
+        let full_offset = allocation.offset_in_bytes() + offset;
+        assert!(
+            full_offset + size_in_bytes
+                <= allocation.offset_in_bytes() + allocation.size_in_bytes(),
+            "Attempted to suballocate outside of an allocation's bounds!"
+        );
+        Self {
+            device_memory: allocation.device_memory.clone(),
+            offset_in_bytes: full_offset,
+            size_in_bytes,
+            memory_type_index: allocation.memory_type_index(),
+        }
+    }
+
     /// The index for the memory type used to allocate this chunk of memory.
     pub(crate) fn memory_type_index(&self) -> usize {
         self.memory_type_index

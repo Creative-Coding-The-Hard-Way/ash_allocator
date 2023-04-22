@@ -14,7 +14,8 @@ use {
 
 pub use self::{
     composable_allocator::ComposableAllocator,
-    device_allocator::DeviceAllocator, trace_allocator::TraceAllocator,
+    device_allocator::DeviceAllocator, page_suballocator::PageSuballocator,
+    trace_allocator::TraceAllocator,
 };
 
 /// The top-level interface for allocating GPU memory.

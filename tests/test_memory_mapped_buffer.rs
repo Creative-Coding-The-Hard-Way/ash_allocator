@@ -68,7 +68,7 @@ pub fn test_mapped_buffer() -> Result<()> {
 
         // The other option would be to create a stack-allocated ExampleData and
         // perform an unaligned write/read
-        assert_eq!(addr % std::mem::size_of::<ExampleData>(), 0);
+        assert_eq!(addr % std::mem::align_of::<ExampleData>(), 0);
 
         let sliced = unsafe {
             // SAFE because we assert that the pointer is aligned properly
@@ -89,7 +89,7 @@ pub fn test_mapped_buffer() -> Result<()> {
 
         // The other option would be to create a stack-allocated ExampleData and
         // perform an unaligned write/read
-        assert_eq!(addr % std::mem::size_of::<ExampleData>(), 0);
+        assert_eq!(addr % std::mem::align_of::<ExampleData>(), 0);
 
         let sliced = unsafe {
             // SAFE because we assert that the pointer is aligned properly

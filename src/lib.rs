@@ -16,7 +16,8 @@ pub use self::{
     },
     error::AllocatorError,
     memory_allocator::{
-        ComposableAllocator, DeviceAllocator, MemoryAllocator, TraceAllocator,
+        ComposableAllocator, DeviceAllocator, MemoryAllocator,
+        PageSuballocator, TraceAllocator,
     },
     memory_properties::MemoryProperties,
 };
