@@ -75,11 +75,6 @@ impl MemoryAllocator {
     ///   memory it needs
     /// - `memory_property_flags` - used to pick the correct memory type for the
     ///   buffer's memory
-    /// - `additional_alignment_requirement` - an additional alignment
-    ///   constraint to apply to the underlying memory allocation. This is
-    ///   important for HOST_VISIBLE buffers when interacting with the mapped
-    ///   pointer. Set to 1 if you prefer to let the GPU select the alignment
-    ///   without any additional constraints.
     ///
     /// # Returns
     ///
@@ -97,7 +92,6 @@ impl MemoryAllocator {
         &mut self,
         buffer_create_info: &vk::BufferCreateInfo,
         memory_property_flags: vk::MemoryPropertyFlags,
-        additional_alignment_requirement: usize,
     ) -> Result<(vk::Buffer, Allocation), AllocatorError> {
         let buffer = unsafe {
             self.device
@@ -120,12 +114,7 @@ impl MemoryAllocator {
             if result.is_err() {
                 self.device.destroy_buffer(buffer, None);
             }
-            let mut requirements = result?;
-            requirements.alignment = num::integer::lcm(
-                requirements.alignment,
-                additional_alignment_requirement as u64,
-            );
-            requirements
+            result?
         };
 
         let allocation = {

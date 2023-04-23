@@ -17,6 +17,7 @@ assert2 = "*"
 regex = "*"
 ccthw_ash_instance = { git = "https://github.com/Creative-Coding-The-Hard-Way/ash_instance.git" }
 scopeguard = "*"
+pretty_assertions = "*"
 
 [dev-dependencies.textwrap]
 features = ["terminal_size"]

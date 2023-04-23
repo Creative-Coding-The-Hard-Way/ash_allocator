@@ -8,6 +8,7 @@ use {
         TraceAllocator,
     },
     ccthw_ash_instance::VulkanHandle,
+    std::mem::align_of,
 };
 
 mod common;
@@ -79,7 +80,6 @@ pub fn test_paged_suballocator() -> Result<()> {
             &create_info,
             vk::MemoryPropertyFlags::HOST_VISIBLE
                 | vk::MemoryPropertyFlags::HOST_COHERENT,
-            std::mem::size_of::<u32>() * 100,
         )?
     };
     defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) }; }
@@ -100,9 +100,10 @@ pub fn test_paged_suballocator() -> Result<()> {
     // Allocate memory from the original allocation
     // --------------------------------------------
 
+    let u32_alignment = align_of::<u32>() as u64;
     let suballocation_1 = unsafe {
         suballocator
-            .allocate_unaligned(std::mem::size_of::<u32>() as u64 * 20)?
+            .allocate(std::mem::size_of::<u32>() as u64 * 20, u32_alignment)?
     };
     assert_eq!(
         suballocation_1.size_in_bytes(),
@@ -111,7 +112,7 @@ pub fn test_paged_suballocator() -> Result<()> {
 
     let suballocation_2 = unsafe {
         suballocator
-            .allocate_unaligned(std::mem::size_of::<u32>() as u64 * 60)?
+            .allocate(std::mem::size_of::<u32>() as u64 * 60, u32_alignment)?
     };
     assert_eq!(
         suballocation_2.size_in_bytes(),
@@ -120,14 +121,14 @@ pub fn test_paged_suballocator() -> Result<()> {
 
     let suballocation_3 = unsafe {
         suballocator
-            .allocate_unaligned(std::mem::size_of::<u32>() as u64 * 20)?
+            .allocate(std::mem::size_of::<u32>() as u64 * 20, u32_alignment)?
     };
     assert_eq!(
         suballocation_3.size_in_bytes(),
         std::mem::size_of::<u32>() as u64 * 20
     );
 
-    let try_4 = unsafe { suballocator.allocate_unaligned(10) };
+    let try_4 = unsafe { suballocator.allocate(10, u32_alignment) };
     assert!(try_4.is_err());
 
     // Map the suballocations and write to them
@@ -177,7 +178,7 @@ pub fn test_paged_suballocator() -> Result<()> {
 
     let suballocation_4 = unsafe {
         suballocator
-            .allocate_unaligned(std::mem::size_of::<u32>() as u64 * 10)?
+            .allocate(std::mem::size_of::<u32>() as u64 * 10, u32_alignment)?
     };
     assert_eq!(
         suballocation_4.size_in_bytes(),
@@ -186,7 +187,7 @@ pub fn test_paged_suballocator() -> Result<()> {
 
     let suballocation_5 = unsafe {
         suballocator
-            .allocate_unaligned(std::mem::size_of::<u32>() as u64 * 10)?
+            .allocate(std::mem::size_of::<u32>() as u64 * 10, u32_alignment)?
     };
     assert_eq!(
         suballocation_5.size_in_bytes(),
@@ -225,6 +226,16 @@ pub fn test_paged_suballocator() -> Result<()> {
             }
         }
     }
+
+    // Return all of the memory
+    unsafe {
+        suballocator.free(suballocation_1);
+        suballocator.free(suballocation_3);
+        suballocator.free(suballocation_4);
+        suballocator.free(suballocation_5);
+    }
+
+    assert!(suballocator.is_empty());
 
     Ok(())
 }
