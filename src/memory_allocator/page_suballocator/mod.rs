@@ -97,7 +97,8 @@ impl PageSuballocator {
         ))
     }
 
-    /// Suballocate a region of memory without considering alignment.
+    /// Suballocate a chunk of memory. The resulting allocation is always
+    /// aligned to the page size relative to the original allocation's offset.
     ///
     /// # Params
     ///
@@ -142,6 +143,11 @@ impl PageSuballocator {
         }
         let relative_offset =
             allocation.offset_in_bytes() - self.allocation.offset_in_bytes();
+
+        // NOTE: it is safe to integer divide and round down here because
+        // the page_index can be anywhere in the chunk. e.g. there is no need
+        // to consider cases where the offset is aligned to a value larger
+        // than the page size - it just works.
         let page_index = relative_offset / self.page_size_in_bytes;
         self.arena.free_chunk(page_index as usize);
     }
