@@ -87,8 +87,13 @@ impl PageSuballocator {
         // Note that (alignment - unaligned.offset_in_bytes() % alignment) is
         // always <= alignment-1. So this correction will always leave enough
         // space for the requested size_in_bytes.
-        let alignment_correction =
-            alignment - (unaligned.offset_in_bytes() % alignment);
+        let alignment_correction = {
+            if unaligned.offset_in_bytes() % alignment == 0 {
+                0
+            } else {
+                alignment - (unaligned.offset_in_bytes() % alignment)
+            }
+        };
 
         Ok(Allocation::suballocate(
             &unaligned,

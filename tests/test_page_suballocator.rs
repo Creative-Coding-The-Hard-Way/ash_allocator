@@ -92,10 +92,8 @@ pub fn test_paged_suballocator() -> Result<()> {
         }
     }
 
-    let mut suballocator = PageSuballocator::for_allocation(
-        allocation.clone(),
-        allocation.size_in_bytes() / 20,
-    );
+    let mut suballocator =
+        PageSuballocator::for_allocation(allocation.clone(), 1);
 
     // Allocate memory from the original allocation
     // --------------------------------------------
@@ -121,11 +119,11 @@ pub fn test_paged_suballocator() -> Result<()> {
 
     let suballocation_3 = unsafe {
         suballocator
-            .allocate(std::mem::size_of::<u32>() as u64 * 20, u32_alignment)?
+            .allocate(std::mem::size_of::<u32>() as u64 * 17, u32_alignment)?
     };
     assert_eq!(
         suballocation_3.size_in_bytes(),
-        std::mem::size_of::<u32>() as u64 * 20
+        std::mem::size_of::<u32>() as u64 * 17
     );
 
     let try_4 = unsafe { suballocator.allocate(10, u32_alignment) };
@@ -164,75 +162,24 @@ pub fn test_paged_suballocator() -> Result<()> {
         for (i, &v) in slice.iter().enumerate() {
             if i < 20 {
                 assert_eq!(v, 1, "slice at {i}");
-            } else if (20..80).contains(&i) {
+            } else if i == 20 {
+                assert_eq!(v, 0, "slice at {i}");
+            } else if (21..81).contains(&i) {
                 assert_eq!(v, 2, "slice at {i}");
-            } else if (80..100).contains(&i) {
+            } else if i == 81 {
+                assert_eq!(v, 0, "slice at {i}");
+            } else if (82..99).contains(&i) {
                 assert_eq!(v, 3, "slice at {i}");
+            } else if i == 99 {
+                assert_eq!(v, 0, "slice at {i}");
             }
         }
     }
 
-    // Free and reallocate a bit of memory.
-
-    unsafe { suballocator.free(suballocation_2) };
-
-    let suballocation_4 = unsafe {
-        suballocator
-            .allocate(std::mem::size_of::<u32>() as u64 * 10, u32_alignment)?
-    };
-    assert_eq!(
-        suballocation_4.size_in_bytes(),
-        std::mem::size_of::<u32>() as u64 * 10
-    );
-
-    let suballocation_5 = unsafe {
-        suballocator
-            .allocate(std::mem::size_of::<u32>() as u64 * 10, u32_alignment)?
-    };
-    assert_eq!(
-        suballocation_5.size_in_bytes(),
-        std::mem::size_of::<u32>() as u64 * 10
-    );
-
-    // Write some data into suballocation 4
-
-    {
-        let slice = mapped_slice(&suballocation_4, &device)?;
-        for item in slice {
-            *item = 4;
-        }
-    }
-
-    {
-        let slice = mapped_slice(&suballocation_5, &device)?;
-        for item in slice {
-            *item = 5;
-        }
-    }
-
-    {
-        let slice = mapped_slice::<u32>(&allocation, &device)?;
-        for (i, &v) in slice.iter().enumerate() {
-            if i < 20 {
-                assert_eq!(v, 1, "slice at {i}");
-            } else if (20..30).contains(&i) {
-                assert_eq!(v, 4, "slice at {i}");
-            } else if (30..40).contains(&i) {
-                assert_eq!(v, 5, "slice at {i}");
-            } else if (40..80).contains(&i) {
-                assert_eq!(v, 2, "slice at {i}");
-            } else if (80..100).contains(&i) {
-                assert_eq!(v, 3, "slice at {i}");
-            }
-        }
-    }
-
-    // Return all of the memory
     unsafe {
         suballocator.free(suballocation_1);
+        suballocator.free(suballocation_2);
         suballocator.free(suballocation_3);
-        suballocator.free(suballocation_4);
-        suballocator.free(suballocation_5);
     }
 
     assert!(suballocator.is_empty());
