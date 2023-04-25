@@ -1,5 +1,6 @@
 mod composable_allocator;
 mod device_allocator;
+mod memory_type_pool_allocator;
 mod page_suballocator;
 mod trace_allocator;
 
