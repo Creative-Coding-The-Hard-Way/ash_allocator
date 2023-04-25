@@ -1,4 +1,12 @@
-use crate::{Allocation, AllocationRequirements, AllocatorError};
+use {
+    crate::{Allocation, AllocationRequirements, AllocatorError},
+    std::{cell::RefCell, rc::Rc},
+};
+
+/// Move an composable allocator into a Rc RefCell.
+pub fn into_shared<T: ComposableAllocator>(allocator: T) -> Rc<RefCell<T>> {
+    Rc::new(RefCell::new(allocator))
+}
 
 pub trait ComposableAllocator {
     /// Allocate GPU memory based on the given requirements.
@@ -50,5 +58,21 @@ where
 
     unsafe fn free(&mut self, allocation: Allocation) {
         self.as_mut().free(allocation)
+    }
+}
+
+impl<T> ComposableAllocator for Rc<RefCell<T>>
+where
+    T: ComposableAllocator,
+{
+    unsafe fn allocate(
+        &mut self,
+        allocation_requirements: AllocationRequirements,
+    ) -> Result<Allocation, AllocatorError> {
+        self.borrow_mut().allocate(allocation_requirements)
+    }
+
+    unsafe fn free(&mut self, allocation: Allocation) {
+        self.borrow_mut().free(allocation)
     }
 }
