@@ -95,6 +95,7 @@ impl<Allocator: ComposableAllocator> ComposableAllocator
             }
         };
 
+        debug_assert!(!self.pool.contains_key(&chunk_device_memory));
         self.pool.insert(chunk_device_memory, suballocator);
 
         Ok(allocation)
