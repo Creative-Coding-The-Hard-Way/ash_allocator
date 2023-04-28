@@ -43,6 +43,18 @@ impl PageSuballocator {
         }
     }
 
+    /// Releases ownership of the underlying allocation.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe because:
+    /// - ownership is transferred, regardless of existing suballocations.
+    /// - the application must ensure that no suballocations are in-use after
+    ///   this call.
+    pub fn release_allocation(self) -> Allocation {
+        self.allocation
+    }
+
     /// Returns true when all suballocations have been freed.
     pub fn is_empty(&self) -> bool {
         self.arena.is_empty()

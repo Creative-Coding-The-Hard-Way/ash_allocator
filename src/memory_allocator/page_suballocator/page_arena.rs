@@ -200,9 +200,11 @@ mod test {
 
         assert_eq!(arena.allocate_chunk(2), Some(5));
         assert_eq!(pages_to_str(&arena.pages), "0000055fff");
+        assert_eq!(arena.allocation_count, 2);
 
         assert_eq!(arena.allocate_chunk(3), Some(7));
         assert_eq!(pages_to_str(&arena.pages), "0000055777");
+        assert_eq!(arena.allocation_count, 3);
 
         assert_eq!(arena.allocate_chunk(1), None);
         assert_eq!(pages_to_str(&arena.pages), "0000055777");
@@ -222,15 +224,22 @@ mod test {
         assert_eq!(arena.allocate_chunk(2), Some(5));
         assert_eq!(arena.allocate_chunk(3), Some(7));
         assert_eq!(pages_to_str(&arena.pages), "0000055777");
+        assert_eq!(arena.allocation_count, 3);
+        assert!(!arena.is_empty());
 
         arena.free_chunk(3); // somewhere in that first chunk
         assert_eq!(pages_to_str(&arena.pages), "fffff55777");
+        assert_eq!(arena.allocation_count, 2);
+        assert!(!arena.is_empty());
 
         arena.free_chunk(7); // right at the beginning of the chunk
         assert_eq!(pages_to_str(&arena.pages), "fffff55fff");
+        assert_eq!(arena.allocation_count, 1);
+        assert!(!arena.is_empty());
 
         arena.free_chunk(6); // at the very end of the chunk
         assert_eq!(pages_to_str(&arena.pages), "ffffffffff");
+        assert_eq!(arena.allocation_count, 0);
         assert!(arena.is_empty());
     }
 

@@ -11,7 +11,7 @@ pub use self::dedicated_resource_handle::DedicatedResourceHandle;
 ///
 /// It's convenient to keep the Memory Requirements 2 and Dedicated Requirements
 /// structures together because they're populated at the same time.
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, PartialEq, Eq)]
 pub struct AllocationRequirements {
     pub size_in_bytes: u64,
     pub alignment: u64,
@@ -121,6 +121,12 @@ impl AllocationRequirements {
             memory_property_flags,
             DedicatedResourceHandle::Image(image),
         ))
+    }
+
+    /// Compute the maximum size which must be allocated to ensure an aligned
+    /// offset for the resulting memory.
+    pub fn aligned_size(&self) -> u64 {
+        self.size_in_bytes + self.alignment - 1
     }
 }
 
