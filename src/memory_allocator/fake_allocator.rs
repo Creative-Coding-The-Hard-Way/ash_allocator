@@ -36,6 +36,7 @@ impl ComposableAllocator for FakeAllocator {
             allocation_requirements.memory_type_index,
             0,
             allocation_requirements.size_in_bytes,
+            allocation_requirements,
         ))
     }
 

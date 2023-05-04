@@ -1,5 +1,8 @@
 use {
-    crate::{pretty_wrappers::PrettySize, AllocatorError, DeviceMemory},
+    crate::{
+        pretty_wrappers::PrettySize, AllocationRequirements, AllocatorError,
+        DeviceMemory,
+    },
     ash::vk,
 };
 
@@ -10,6 +13,7 @@ pub struct Allocation {
     offset_in_bytes: vk::DeviceSize,
     size_in_bytes: vk::DeviceSize,
     memory_type_index: usize,
+    allocation_requirements: AllocationRequirements,
 }
 
 // Public API
@@ -39,6 +43,11 @@ impl Allocation {
     /// The size of the allocation in bytes.
     pub fn size_in_bytes(&self) -> vk::DeviceSize {
         self.size_in_bytes
+    }
+
+    /// The allocation requirements used when acquiring the device memory.
+    pub fn allocation_requirements(&self) -> &AllocationRequirements {
+        &self.allocation_requirements
     }
 
     /// Map the allocation into application address space.
@@ -91,6 +100,7 @@ impl std::fmt::Debug for Allocation {
             .field("device_memory", &self.device_memory)
             .field("offset_in_bytes", &PrettySize(self.offset_in_bytes))
             .field("size_in_bytes", &PrettySize(self.size_in_bytes))
+            .field("allocation_requirements", &self.allocation_requirements)
             .finish()
     }
 }
@@ -111,12 +121,14 @@ impl Allocation {
         memory_type_index: usize,
         offset_in_bytes: vk::DeviceSize,
         size_in_bytes: vk::DeviceSize,
+        allocation_requirements: AllocationRequirements,
     ) -> Self {
         Self {
             device_memory,
             memory_type_index,
             offset_in_bytes,
             size_in_bytes,
+            allocation_requirements,
         }
     }
 
@@ -143,6 +155,7 @@ impl Allocation {
         allocation: &Allocation,
         offset: vk::DeviceSize,
         size_in_bytes: vk::DeviceSize,
+        offset_alignment: u64,
     ) -> Self {
         let full_offset = allocation.offset_in_bytes() + offset;
         assert!(
@@ -150,11 +163,20 @@ impl Allocation {
                 <= allocation.offset_in_bytes() + allocation.size_in_bytes(),
             "Attempted to suballocate outside of an allocation's bounds!"
         );
+        assert!(
+            full_offset % offset_alignment == 0,
+            "Attempted to suballocate with invalid alignment!"
+        );
         Self {
             device_memory: allocation.device_memory.clone(),
             offset_in_bytes: full_offset,
             size_in_bytes,
             memory_type_index: allocation.memory_type_index(),
+            allocation_requirements: AllocationRequirements {
+                size_in_bytes,
+                alignment: offset_alignment,
+                ..allocation.allocation_requirements
+            },
         }
     }
 

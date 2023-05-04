@@ -4,6 +4,7 @@ mod fake_allocator;
 mod memory_type_pool_allocator;
 mod page_suballocator;
 mod pool_allocator;
+mod sized_allocator;
 mod trace_allocator;
 
 use {
@@ -22,6 +23,7 @@ pub use self::{
     memory_type_pool_allocator::MemoryTypePoolAllocator,
     page_suballocator::PageSuballocator,
     pool_allocator::PoolAllocator,
+    sized_allocator::SizedAllocator,
     trace_allocator::TraceAllocator,
 };
 

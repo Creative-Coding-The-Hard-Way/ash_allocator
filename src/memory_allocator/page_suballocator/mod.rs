@@ -111,6 +111,7 @@ impl PageSuballocator {
             &unaligned,
             alignment_correction,
             size_in_bytes,
+            alignment,
         ))
     }
 
@@ -143,6 +144,7 @@ impl PageSuballocator {
             &self.allocation,
             starting_index as u64 * self.page_size_in_bytes,
             size_in_bytes,
+            1,
         ))
     }
 

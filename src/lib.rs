@@ -18,7 +18,7 @@ pub use self::{
     memory_allocator::{
         into_shared, ComposableAllocator, DeviceAllocator, FakeAllocator,
         MemoryAllocator, MemoryTypePoolAllocator, PageSuballocator,
-        PoolAllocator, TraceAllocator,
+        PoolAllocator, SizedAllocator, TraceAllocator,
     },
     memory_properties::MemoryProperties,
 };
