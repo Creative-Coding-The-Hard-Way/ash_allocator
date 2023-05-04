@@ -28,6 +28,27 @@ impl MemoryProperties {
         Self { types, heaps }
     }
 
+    /// Create memory properties directly from a slice of memory types and
+    /// heaps.
+    ///
+    /// This is primarily used for testing.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe because:
+    /// - Types and heaps are expected to reference one another. Using a memory
+    ///   type or heap which wasn't returned by the device itself can result in
+    ///   undefined behavior.
+    pub unsafe fn from_raw(
+        types: &[vk::MemoryType],
+        heaps: &[vk::MemoryHeap],
+    ) -> Self {
+        Self {
+            types: types.to_owned(),
+            heaps: heaps.to_owned(),
+        }
+    }
+
     /// All of the currently usable memory heaps on this system.
     pub fn heaps(&self) -> &[vk::MemoryHeap] {
         &self.heaps

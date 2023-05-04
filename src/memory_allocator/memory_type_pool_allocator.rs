@@ -12,6 +12,7 @@ pub struct MemoryTypePoolAllocator<Allocator: ComposableAllocator> {
     memory_type_index: usize,
     allocator: Allocator,
     chunk_size: u64,
+    page_size: u64,
     pool: HashMap<vk::DeviceMemory, PageSuballocator>,
 }
 
@@ -22,16 +23,25 @@ impl<Allocator: ComposableAllocator> MemoryTypePoolAllocator<Allocator> {
     ///
     /// * memory_type_index: the index of the specific memory type this pool can
     ///   allocate from.
+    /// * chunk_size: the size of each chunk of memory to be divided into pages.
+    /// * page_size: chunks are divided into pages with this size for
+    ///   allocation.
     /// * allocator: the backing allocator which provides device memory.
     pub fn new(
         memory_type_index: usize,
         chunk_size: u64,
+        page_size: u64,
         allocator: Allocator,
     ) -> Self {
+        debug_assert!(
+            chunk_size % page_size == 0,
+            "Chunks must be evenly divisible into pages."
+        );
         Self {
             memory_type_index,
             allocator,
             chunk_size,
+            page_size,
             pool: HashMap::new(),
         }
     }
@@ -70,17 +80,15 @@ impl<Allocator: ComposableAllocator> ComposableAllocator
         // Unable to allocate from an existing chunk, so create a new chunk
         // and allocate from it.
         let chunk_requirements = AllocationRequirements {
-            alignment: 2,
+            alignment: 1,
             size_in_bytes: self.chunk_size,
             memory_type_index: self.memory_type_index,
             ..AllocationRequirements::default()
         };
         let chunk_allocation = self.allocator.allocate(chunk_requirements)?;
         let chunk_device_memory = chunk_allocation.memory();
-        let mut suballocator = PageSuballocator::for_allocation(
-            chunk_allocation,
-            self.chunk_size / 64,
-        );
+        let mut suballocator =
+            PageSuballocator::for_allocation(chunk_allocation, self.page_size);
 
         // Allocate using the newly created suballocator. Remember to
         // free the chunk if something goes wrong at this point.

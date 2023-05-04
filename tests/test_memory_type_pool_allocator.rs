@@ -14,7 +14,7 @@ pub fn test_multiple_allocations() -> Result<()> {
     common::setup_logger();
 
     let fake = into_shared(FakeAllocator::default());
-    let mut allocator = MemoryTypePoolAllocator::new(0, 512, fake.clone());
+    let mut allocator = MemoryTypePoolAllocator::new(0, 512, 8, fake.clone());
 
     let small_allocation_requirements = AllocationRequirements {
         memory_type_index: 0,
@@ -52,12 +52,12 @@ pub fn test_multiple_allocations() -> Result<()> {
         &[
             AllocationRequirements {
                 size_in_bytes: 512,
-                alignment: 2,
+                alignment: 1,
                 ..AllocationRequirements::default()
             },
             AllocationRequirements {
                 size_in_bytes: 512,
-                alignment: 2,
+                alignment: 1,
                 ..AllocationRequirements::default()
             },
         ]
@@ -79,7 +79,7 @@ pub fn test_allocate_and_free() -> Result<()> {
     common::setup_logger();
 
     let fake = into_shared(FakeAllocator::default());
-    let mut allocator = MemoryTypePoolAllocator::new(0, 512, fake.clone());
+    let mut allocator = MemoryTypePoolAllocator::new(0, 512, 8, fake.clone());
 
     let allocation_requirements = AllocationRequirements {
         memory_type_index: 0,
@@ -97,7 +97,7 @@ pub fn test_allocate_and_free() -> Result<()> {
         fake.borrow().allocations[0],
         AllocationRequirements {
             size_in_bytes: 512,
-            alignment: 2,
+            alignment: 1,
             ..allocation_requirements
         }
     );
@@ -115,7 +115,7 @@ pub fn test_allocate_with_mismatching_type_index_should_fail() -> Result<()> {
     common::setup_logger();
 
     let fake = into_shared(FakeAllocator::default());
-    let mut allocator = MemoryTypePoolAllocator::new(0, 32, fake);
+    let mut allocator = MemoryTypePoolAllocator::new(0, 32, 1, fake);
 
     let allocation_requirements = AllocationRequirements {
         memory_type_index: 1,
@@ -140,7 +140,7 @@ pub fn test_allocate_with_oversized_allocation_requirements() -> Result<()> {
     common::setup_logger();
 
     let fake = into_shared(FakeAllocator::default());
-    let mut allocator = MemoryTypePoolAllocator::new(0, 64, fake);
+    let mut allocator = MemoryTypePoolAllocator::new(0, 64, 1, fake);
 
     let allocation_requirements = AllocationRequirements {
         memory_type_index: 0,
