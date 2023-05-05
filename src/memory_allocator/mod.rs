@@ -1,4 +1,5 @@
 mod composable_allocator;
+mod dedicated_allocator;
 mod device_allocator;
 mod fake_allocator;
 mod memory_type_pool_allocator;
@@ -18,6 +19,7 @@ use {
 
 pub use self::{
     composable_allocator::{into_shared, ComposableAllocator},
+    dedicated_allocator::DedicatedAllocator,
     device_allocator::DeviceAllocator,
     fake_allocator::FakeAllocator,
     memory_type_pool_allocator::MemoryTypePoolAllocator,

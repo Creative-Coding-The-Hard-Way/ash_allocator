@@ -146,6 +146,7 @@ impl std::fmt::Debug for AllocationRequirements {
                 "requires_dedicated_allocation",
                 &self.requires_dedicated_allocation,
             )
+            .field("dedicated_resource_handle", &self.dedicated_resource_handle)
             .finish()
     }
 }
@@ -168,19 +169,26 @@ impl AllocationRequirements {
         memory_property_flags: vk::MemoryPropertyFlags,
         dedicated_resource_handle: DedicatedResourceHandle,
     ) -> Self {
+        let prefers_dedicated_allocation =
+            dedicated_requirements.prefers_dedicated_allocation == vk::TRUE;
+        let requires_dedicated_allocation =
+            dedicated_requirements.requires_dedicated_allocation == vk::TRUE;
+        let resource_handle =
+            if prefers_dedicated_allocation || requires_dedicated_allocation {
+                dedicated_resource_handle
+            } else {
+                DedicatedResourceHandle::None
+            };
+
         Self {
             size_in_bytes: memory_requirements.size,
             alignment: memory_requirements.alignment,
             memory_type_bits: memory_requirements.memory_type_bits,
             memory_type_index,
             memory_properties: memory_property_flags,
-            prefers_dedicated_allocation: dedicated_requirements
-                .prefers_dedicated_allocation
-                == vk::TRUE,
-            requires_dedicated_allocation: dedicated_requirements
-                .requires_dedicated_allocation
-                == vk::TRUE,
-            dedicated_resource_handle,
+            prefers_dedicated_allocation,
+            requires_dedicated_allocation,
+            dedicated_resource_handle: resource_handle,
         }
     }
 

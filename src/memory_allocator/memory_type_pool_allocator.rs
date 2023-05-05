@@ -83,7 +83,7 @@ impl<Allocator: ComposableAllocator> ComposableAllocator
             alignment: 1,
             size_in_bytes: self.chunk_size,
             memory_type_index: self.memory_type_index,
-            ..AllocationRequirements::default()
+            ..allocation_requirements
         };
         let chunk_allocation = self.allocator.allocate(chunk_requirements)?;
         let chunk_device_memory = chunk_allocation.memory();
