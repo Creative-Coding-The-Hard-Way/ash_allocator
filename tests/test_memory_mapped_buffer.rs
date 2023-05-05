@@ -61,7 +61,14 @@ unsafe fn create_allocator(
     let dedicated_allocator =
         DedicatedAllocator::new(sized_allocator, device_allocator);
 
-    MemoryAllocator::new(instance, device, physical_device, dedicated_allocator)
+    let system_allocator = TraceAllocator::new(
+        instance,
+        physical_device,
+        dedicated_allocator,
+        "Application Allocator",
+    );
+
+    MemoryAllocator::new(instance, device, physical_device, system_allocator)
 }
 
 #[repr(C, packed)]
