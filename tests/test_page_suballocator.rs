@@ -3,16 +3,18 @@
 //! verify the results.
 
 use {
+    anyhow::Result,
+    ash::vk,
     ccthw_ash_allocator::{
         Allocation, DeviceAllocator, MemoryAllocator, PageSuballocator,
         TraceAllocator,
     },
     ccthw_ash_instance::VulkanHandle,
+    scopeguard::defer,
     std::mem::align_of,
 };
 
 mod common;
-use {anyhow::Result, ash::vk, scopeguard::defer};
 
 unsafe fn create_allocator(
     instance: &ash::Instance,

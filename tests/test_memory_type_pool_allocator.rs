@@ -1,13 +1,13 @@
 use {
+    anyhow::Result,
     ccthw_ash_allocator::{
         into_shared, AllocationRequirements, AllocatorError,
-        ComposableAllocator, MemoryTypePoolAllocator,
+        ComposableAllocator, FakeAllocator, MemoryTypePoolAllocator,
     },
     pretty_assertions::assert_eq,
 };
 
 mod common;
-use {anyhow::Result, ccthw_ash_allocator::FakeAllocator};
 
 #[test]
 pub fn test_multiple_allocations() -> Result<()> {

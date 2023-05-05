@@ -137,6 +137,7 @@ impl std::fmt::Debug for AllocationRequirements {
             .field("alignment", &self.alignment)
             .field("memory_type_bits", &PrettyBitflag(self.memory_type_bits))
             .field("memory_type_index", &self.memory_type_index)
+            .field("memory_property_flags", &self.memory_properties)
             .field(
                 "prefers_dedicated_allocation",
                 &self.prefers_dedicated_allocation,

@@ -2,12 +2,14 @@
 //! be written and read from the buffer.
 
 use {
+    anyhow::Result,
+    ash::vk,
     ccthw_ash_allocator::{DeviceAllocator, MemoryAllocator, TraceAllocator},
     ccthw_ash_instance::VulkanHandle,
+    scopeguard::defer,
 };
 
 mod common;
-use {anyhow::Result, ash::vk, scopeguard::defer};
 
 unsafe fn create_allocator(
     instance: &ash::Instance,

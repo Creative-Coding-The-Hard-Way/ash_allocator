@@ -1,15 +1,15 @@
 //! Tests for the pool allocator.
 
 use {
+    anyhow::Result,
     ash::vk,
     ccthw_ash_allocator::{
         into_shared, AllocationRequirements, ComposableAllocator,
-        MemoryProperties, PoolAllocator,
+        FakeAllocator, MemoryProperties, PoolAllocator,
     },
 };
 
 mod common;
-use {anyhow::Result, ccthw_ash_allocator::FakeAllocator};
 
 #[test]
 fn test_allocate_and_free() -> Result<()> {
