@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["amd",""]]};
+window.SIDEBAR_ITEMS = {"mod":["amd"]};

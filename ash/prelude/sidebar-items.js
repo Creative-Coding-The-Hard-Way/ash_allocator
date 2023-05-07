@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"type":[["VkResult",""]]};
+window.SIDEBAR_ITEMS = {"type":["VkResult"]};

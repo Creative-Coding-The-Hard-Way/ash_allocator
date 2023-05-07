@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["IOSSurface",""],["MacOSSurface",""]]};
+window.SIDEBAR_ITEMS = {"struct":["IOSSurface","MacOSSurface"]};
