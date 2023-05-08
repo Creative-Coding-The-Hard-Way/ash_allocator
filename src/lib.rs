@@ -57,9 +57,9 @@ pub unsafe fn create_system_allocator(
     let small_page_size = 1024; // 1kb
     let small_chunk_size = small_page_size * 64; // 64kb
     let medium_page_size = small_chunk_size; // 64kb
-    let medium_chunk_size = medium_page_size * 128; // 8mb
-    let root_page_size = medium_chunk_size; // 8mb
-    let root_chunk_size = medium_chunk_size * 256; // 2gb
+    let medium_chunk_size = medium_page_size * 64; // 4mb
+    let root_page_size = medium_chunk_size; // 4mb
+    let root_chunk_size = medium_chunk_size * 128; // 0.5gb
 
     let large_chunk_pool_allocator = into_shared(SizedAllocator::new(
         root_chunk_size,
