@@ -268,3 +268,17 @@ impl MemoryAllocator {
         self.internal_allocator.free(allocation);
     }
 }
+
+impl std::fmt::Debug for MemoryAllocator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MemoryAllocator")
+            .field("memory_properties", &self.memory_properties)
+            .finish()
+    }
+}
+
+impl std::fmt::Display for MemoryAllocator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{:?}", self))
+    }
+}
