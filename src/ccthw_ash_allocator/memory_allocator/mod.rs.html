@@ -268,6 +268,20 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>composable_allocator;
 <span class="kw">mod </span>dedicated_allocator;
 <span class="kw">mod </span>device_allocator;
@@ -536,6 +550,20 @@
     ) {
         <span class="self">self</span>.device.destroy_image(image, <span class="prelude-val">None</span>);
         <span class="self">self</span>.internal_allocator.free(allocation);
+    }
+}
+
+<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>MemoryAllocator {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        f.debug_struct(<span class="string">&quot;MemoryAllocator&quot;</span>)
+            .field(<span class="string">&quot;memory_properties&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.memory_properties)
+            .finish()
+    }
+}
+
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MemoryAllocator {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        f.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>))
     }
 }
 </code></pre></div>
