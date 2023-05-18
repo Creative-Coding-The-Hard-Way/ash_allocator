@@ -11,6 +11,7 @@ mod pretty_wrappers;
 
 use {
     self::{
+        allocation::AllocationId,
         device_memory::DeviceMemory,
         pretty_wrappers::{PrettyBitflag, PrettySize},
     },

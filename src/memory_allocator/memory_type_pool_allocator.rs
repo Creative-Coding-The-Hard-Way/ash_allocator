@@ -1,10 +1,9 @@
 use {
     crate::{
-        Allocation, AllocationRequirements, AllocatorError,
+        Allocation, AllocationId, AllocationRequirements, AllocatorError,
         ComposableAllocator, PageSuballocator,
     },
     anyhow::anyhow,
-    ash::vk,
     std::collections::HashMap,
 };
 
@@ -13,7 +12,7 @@ pub struct MemoryTypePoolAllocator<Allocator: ComposableAllocator> {
     allocator: Allocator,
     chunk_size: u64,
     page_size: u64,
-    pool: HashMap<vk::DeviceMemory, PageSuballocator>,
+    pool: HashMap<AllocationId, PageSuballocator>,
 }
 
 impl<Allocator: ComposableAllocator> MemoryTypePoolAllocator<Allocator> {
@@ -86,7 +85,7 @@ impl<Allocator: ComposableAllocator> ComposableAllocator
             ..allocation_requirements
         };
         let chunk_allocation = self.allocator.allocate(chunk_requirements)?;
-        let chunk_device_memory = chunk_allocation.memory();
+        let chunk_allocation_id = chunk_allocation.id();
         let mut suballocator =
             PageSuballocator::for_allocation(chunk_allocation, self.page_size);
 
@@ -103,16 +102,24 @@ impl<Allocator: ComposableAllocator> ComposableAllocator
             }
         };
 
-        debug_assert!(!self.pool.contains_key(&chunk_device_memory));
-        self.pool.insert(chunk_device_memory, suballocator);
+        debug_assert!(allocation.parent_id().unwrap() == chunk_allocation_id);
+        debug_assert!(!self.pool.contains_key(&chunk_allocation_id));
+        self.pool.insert(chunk_allocation_id, suballocator);
 
         Ok(allocation)
     }
 
     unsafe fn free(&mut self, allocation: Allocation) {
-        debug_assert!(self.pool.contains_key(&allocation.memory()));
+        debug_assert!(
+            allocation.parent_id().is_some(),
+            "MemoryTypePoolAllocator can only free suballocated allocations!"
+        );
+        debug_assert!(
+            self.pool.contains_key(&allocation.parent_id().unwrap()),
+            "The allocation does not come from this MemoryTypePoolAllocator!"
+        );
 
-        let key = allocation.memory();
+        let key = allocation.parent_id().unwrap();
         let suballocator = self.pool.get_mut(&key).unwrap();
         suballocator.free(allocation);
 

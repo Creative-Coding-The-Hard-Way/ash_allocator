@@ -6,9 +6,16 @@ use {
     ash::vk,
 };
 
+#[derive(Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Debug, Hash)]
+pub(crate) struct AllocationId {
+    memory: vk::DeviceMemory,
+    offset_in_bytes: vk::DeviceSize,
+}
+
 /// A GPU memory allocation.
 #[derive(Clone)]
 pub struct Allocation {
+    parent: Option<AllocationId>,
     device_memory: DeviceMemory,
     offset_in_bytes: vk::DeviceSize,
     size_in_bytes: vk::DeviceSize,
@@ -124,12 +131,37 @@ impl Allocation {
         allocation_requirements: AllocationRequirements,
     ) -> Self {
         Self {
+            parent: None,
             device_memory,
             memory_type_index,
             offset_in_bytes,
             size_in_bytes,
             allocation_requirements,
         }
+    }
+
+    /// A unique ID for non-overlapping allocations.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe because:
+    ///   - IDs may not be unique if there is a bug in a memory allocator.
+    pub(crate) unsafe fn id(&self) -> AllocationId {
+        AllocationId {
+            memory: self.memory(),
+            offset_in_bytes: self.offset_in_bytes(),
+        }
+    }
+
+    /// Returns the Allocation ID for the allocation's parent.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe beacuse:
+    ///   - There are no lifetime guarantees. The parent may not exist even if
+    ///     this function returns a Some().
+    pub(crate) unsafe fn parent_id(&self) -> Option<AllocationId> {
+        self.parent
     }
 
     /// Create an allocation which refers to the same underlying device memory.
@@ -168,6 +200,7 @@ impl Allocation {
             "Attempted to suballocate with invalid alignment!"
         );
         Self {
+            parent: Some(allocation.id()),
             device_memory: allocation.device_memory.clone(),
             offset_in_bytes: full_offset,
             size_in_bytes,

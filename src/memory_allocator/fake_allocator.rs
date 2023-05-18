@@ -3,7 +3,7 @@ use {
         device_memory::DeviceMemory, Allocation, AllocationRequirements,
         AllocatorError, ComposableAllocator,
     },
-    ash::{vk, vk::Handle},
+    ash::vk,
 };
 
 /// A fake implementation of a composable memory allocator which keeps track of
@@ -18,6 +18,8 @@ pub struct FakeAllocator {
 
     /// The total number of allocations made with this allocator.
     pub allocation_count: u64,
+
+    offset: u64,
 }
 
 impl ComposableAllocator for FakeAllocator {
@@ -29,15 +31,17 @@ impl ComposableAllocator for FakeAllocator {
         self.allocation_count += 1;
         self.allocations.push(allocation_requirements);
 
-        Ok(Allocation::new(
-            DeviceMemory::new(vk::DeviceMemory::from_raw(
-                self.allocation_count,
-            )),
+        let allocation = Allocation::new(
+            DeviceMemory::new(vk::DeviceMemory::null()),
             allocation_requirements.memory_type_index,
-            0,
+            self.offset,
             allocation_requirements.size_in_bytes,
             allocation_requirements,
-        ))
+        );
+
+        self.offset += allocation_requirements.size_in_bytes;
+
+        Ok(allocation)
     }
 
     unsafe fn free(&mut self, _allocation: Allocation) {
