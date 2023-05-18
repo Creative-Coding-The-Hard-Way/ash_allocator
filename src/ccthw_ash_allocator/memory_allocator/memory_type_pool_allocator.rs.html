@@ -123,13 +123,19 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
 </pre><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">crate</span>::{
-        Allocation, AllocationRequirements, AllocatorError,
+        Allocation, AllocationId, AllocationRequirements, AllocatorError,
         ComposableAllocator, PageSuballocator,
     },
     anyhow::anyhow,
-    ash::vk,
     std::collections::HashMap,
 };
 
@@ -138,7 +144,7 @@
     allocator: Allocator,
     chunk_size: u64,
     page_size: u64,
-    pool: HashMap&lt;vk::DeviceMemory, PageSuballocator&gt;,
+    pool: HashMap&lt;AllocationId, PageSuballocator&gt;,
 }
 
 <span class="kw">impl</span>&lt;Allocator: ComposableAllocator&gt; MemoryTypePoolAllocator&lt;Allocator&gt; {
@@ -211,7 +217,7 @@
             ..allocation_requirements
         };
         <span class="kw">let </span>chunk_allocation = <span class="self">self</span>.allocator.allocate(chunk_requirements)<span class="question-mark">?</span>;
-        <span class="kw">let </span>chunk_device_memory = chunk_allocation.memory();
+        <span class="kw">let </span>chunk_allocation_id = chunk_allocation.id();
         <span class="kw">let </span><span class="kw-2">mut </span>suballocator =
             PageSuballocator::for_allocation(chunk_allocation, <span class="self">self</span>.page_size);
 
@@ -228,16 +234,24 @@
             }
         };
 
-        <span class="macro">debug_assert!</span>(!<span class="self">self</span>.pool.contains_key(<span class="kw-2">&amp;</span>chunk_device_memory));
-        <span class="self">self</span>.pool.insert(chunk_device_memory, suballocator);
+        <span class="macro">debug_assert!</span>(allocation.parent_id().unwrap() == chunk_allocation_id);
+        <span class="macro">debug_assert!</span>(!<span class="self">self</span>.pool.contains_key(<span class="kw-2">&amp;</span>chunk_allocation_id));
+        <span class="self">self</span>.pool.insert(chunk_allocation_id, suballocator);
 
         <span class="prelude-val">Ok</span>(allocation)
     }
 
     <span class="kw">unsafe fn </span>free(<span class="kw-2">&amp;mut </span><span class="self">self</span>, allocation: Allocation) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.pool.contains_key(<span class="kw-2">&amp;</span>allocation.memory()));
+        <span class="macro">debug_assert!</span>(
+            allocation.parent_id().is_some(),
+            <span class="string">&quot;MemoryTypePoolAllocator can only free suballocated allocations!&quot;
+        </span>);
+        <span class="macro">debug_assert!</span>(
+            <span class="self">self</span>.pool.contains_key(<span class="kw-2">&amp;</span>allocation.parent_id().unwrap()),
+            <span class="string">&quot;The allocation does not come from this MemoryTypePoolAllocator!&quot;
+        </span>);
 
-        <span class="kw">let </span>key = allocation.memory();
+        <span class="kw">let </span>key = allocation.parent_id().unwrap();
         <span class="kw">let </span>suballocator = <span class="self">self</span>.pool.get_mut(<span class="kw-2">&amp;</span>key).unwrap();
         suballocator.free(allocation);
 
