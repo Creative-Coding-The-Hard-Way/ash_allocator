@@ -140,6 +140,17 @@
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
 </pre><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">crate</span>::{
         pretty_wrappers::PrettySize, Allocation, AllocationRequirements,
@@ -150,8 +161,7 @@
     std::collections::HashMap,
 };
 
-<span class="attr">#[derive(Default)]
-</span><span class="kw">struct </span>Metrics {
+<span class="kw">struct </span>Metrics {
     total_allocations: u32,
     leaked_allocations: u32,
     max_size: u64,
@@ -159,15 +169,27 @@
     avg_size: u64,
 }
 
+<span class="kw">impl </span>Default <span class="kw">for </span>Metrics {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            total_allocations: <span class="number">0</span>,
+            leaked_allocations: <span class="number">0</span>,
+            max_size: <span class="number">0</span>,
+            min_size: std::u64::MAX,
+            avg_size: <span class="number">0</span>,
+        }
+    }
+}
+
 <span class="kw">impl </span>Metrics {
     <span class="kw">fn </span>record_allocation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: u64) {
+        <span class="self">self</span>.avg_size = (<span class="self">self</span>.avg_size * <span class="self">self</span>.total_allocations <span class="kw">as </span>u64 + size)
+            / (<span class="self">self</span>.total_allocations <span class="kw">as </span>u64 + <span class="number">1</span>);
+
         <span class="self">self</span>.total_allocations += <span class="number">1</span>;
         <span class="self">self</span>.leaked_allocations += <span class="number">1</span>;
         <span class="self">self</span>.max_size = <span class="self">self</span>.max_size.max(size);
         <span class="self">self</span>.min_size = <span class="self">self</span>.min_size.min(size);
-
-        <span class="kw">let </span>n = <span class="self">self</span>.total_allocations <span class="kw">as </span>u64;
-        <span class="self">self</span>.avg_size = (size / n) + ((n - <span class="number">1</span>) / n) * <span class="self">self</span>.avg_size;
     }
 
     <span class="kw">fn </span>record_free(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
