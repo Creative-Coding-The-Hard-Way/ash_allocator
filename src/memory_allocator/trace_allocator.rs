@@ -8,7 +8,6 @@ use {
     std::collections::HashMap,
 };
 
-#[derive(Default)]
 struct Metrics {
     total_allocations: u32,
     leaked_allocations: u32,
@@ -17,15 +16,27 @@ struct Metrics {
     avg_size: u64,
 }
 
+impl Default for Metrics {
+    fn default() -> Self {
+        Self {
+            total_allocations: 0,
+            leaked_allocations: 0,
+            max_size: 0,
+            min_size: std::u64::MAX,
+            avg_size: 0,
+        }
+    }
+}
+
 impl Metrics {
     fn record_allocation(&mut self, size: u64) {
+        self.avg_size = (self.avg_size * self.total_allocations as u64 + size)
+            / (self.total_allocations as u64 + 1);
+
         self.total_allocations += 1;
         self.leaked_allocations += 1;
         self.max_size = self.max_size.max(size);
         self.min_size = self.min_size.min(size);
-
-        let n = self.total_allocations as u64;
-        self.avg_size = (size / n) + ((n - 1) / n) * self.avg_size;
     }
 
     fn record_free(&mut self) {
