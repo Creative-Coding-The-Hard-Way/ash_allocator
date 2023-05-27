@@ -30,15 +30,15 @@ fn test_non_dedicated_allocation() -> Result<()> {
         allocator.allocate(allocation_requirements)?
     };
     assert_eq!(allocation.size_in_bytes(), 32);
-    assert_eq!(shared_allocator.borrow().active_allocations, 1);
-    assert_eq!(device_allocator.borrow().active_allocations, 0);
+    assert_eq!(shared_allocator.lock().unwrap().active_allocations, 1);
+    assert_eq!(device_allocator.lock().unwrap().active_allocations, 0);
 
     unsafe {
         allocator.free(allocation);
     }
 
-    assert_eq!(shared_allocator.borrow().active_allocations, 0);
-    assert_eq!(device_allocator.borrow().active_allocations, 0);
+    assert_eq!(shared_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(device_allocator.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }
@@ -64,15 +64,15 @@ fn test_prefers_dedicated_allocation() -> Result<()> {
         allocator.allocate(allocation_requirements)?
     };
     assert_eq!(allocation.size_in_bytes(), 32);
-    assert_eq!(shared_allocator.borrow().active_allocations, 0);
-    assert_eq!(device_allocator.borrow().active_allocations, 1);
+    assert_eq!(shared_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(device_allocator.lock().unwrap().active_allocations, 1);
 
     unsafe {
         allocator.free(allocation);
     }
 
-    assert_eq!(shared_allocator.borrow().active_allocations, 0);
-    assert_eq!(device_allocator.borrow().active_allocations, 0);
+    assert_eq!(shared_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(device_allocator.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }
@@ -98,15 +98,15 @@ fn test_requires_dedicated_allocation() -> Result<()> {
         allocator.allocate(allocation_requirements)?
     };
     assert_eq!(allocation.size_in_bytes(), 32);
-    assert_eq!(shared_allocator.borrow().active_allocations, 0);
-    assert_eq!(device_allocator.borrow().active_allocations, 1);
+    assert_eq!(shared_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(device_allocator.lock().unwrap().active_allocations, 1);
 
     unsafe {
         allocator.free(allocation);
     }
 
-    assert_eq!(shared_allocator.borrow().active_allocations, 0);
-    assert_eq!(device_allocator.borrow().active_allocations, 0);
+    assert_eq!(shared_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(device_allocator.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }

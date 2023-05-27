@@ -2,7 +2,7 @@
 
 use {
     anyhow::Result, ash::vk, ccthw_ash_allocator::create_system_allocator,
-    ccthw_ash_instance::VulkanHandle, scopeguard::defer,
+    ccthw_ash_instance::VulkanHandle, scopeguard::defer, std::sync::Arc,
 };
 
 mod common;
@@ -86,4 +86,59 @@ pub fn allocate_image() -> Result<()> {
     log::info!("Image Memory {}", &allocation);
 
     Ok(())
+}
+
+#[test]
+pub fn allocate_buffer_on_thread() -> Result<()> {
+    let device = Arc::new(common::setup()?);
+    log::info!("{}", device);
+
+    let mut allocator = unsafe {
+        create_system_allocator(
+            device.instance.ash(),
+            device.logical_device.raw().clone(),
+            *device.logical_device.physical_device().raw(),
+        )
+    };
+    let mut a2 = allocator.clone();
+
+    let thread = std::thread::spawn(move || -> Result<()> {
+        let (buffer, allocation) = unsafe {
+            let create_info = vk::BufferCreateInfo {
+                flags: vk::BufferCreateFlags::empty(),
+                usage: vk::BufferUsageFlags::STORAGE_BUFFER,
+                size: 64_000,
+                sharing_mode: vk::SharingMode::EXCLUSIVE,
+                queue_family_index_count: 0,
+                p_queue_family_indices: std::ptr::null(),
+                ..Default::default()
+            };
+            allocator.allocate_buffer(
+                &create_info,
+                vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            )?
+        };
+        defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) }; }
+
+        log::info!("Second Thread Allocation {:#?}", &allocation);
+        Ok(())
+    });
+
+    let (buffer, allocation) = unsafe {
+        let create_info = vk::BufferCreateInfo {
+            flags: vk::BufferCreateFlags::empty(),
+            usage: vk::BufferUsageFlags::STORAGE_BUFFER,
+            size: 64_000,
+            sharing_mode: vk::SharingMode::EXCLUSIVE,
+            queue_family_index_count: 0,
+            p_queue_family_indices: std::ptr::null(),
+            ..Default::default()
+        };
+        a2.allocate_buffer(&create_info, vk::MemoryPropertyFlags::DEVICE_LOCAL)?
+    };
+    defer! { unsafe { a2.free_buffer(buffer, allocation.clone()) }; }
+
+    log::info!("Main Thread Allocation {:#?}", &allocation);
+
+    thread.join().unwrap()
 }

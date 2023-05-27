@@ -1,11 +1,11 @@
 use {
     crate::{Allocation, AllocationRequirements, AllocatorError},
-    std::{cell::RefCell, rc::Rc},
+    std::sync::{Arc, Mutex},
 };
 
 /// Move an composable allocator into a Rc RefCell.
-pub fn into_shared<T: ComposableAllocator>(allocator: T) -> Rc<RefCell<T>> {
-    Rc::new(RefCell::new(allocator))
+pub fn into_shared<T: ComposableAllocator>(allocator: T) -> Arc<Mutex<T>> {
+    Arc::new(Mutex::new(allocator))
 }
 
 pub trait ComposableAllocator {
@@ -61,7 +61,7 @@ where
     }
 }
 
-impl<T> ComposableAllocator for Rc<RefCell<T>>
+impl<T> ComposableAllocator for Arc<Mutex<T>>
 where
     T: ComposableAllocator,
 {
@@ -69,10 +69,10 @@ where
         &mut self,
         allocation_requirements: AllocationRequirements,
     ) -> Result<Allocation, AllocatorError> {
-        self.borrow_mut().allocate(allocation_requirements)
+        self.lock().unwrap().allocate(allocation_requirements)
     }
 
     unsafe fn free(&mut self, allocation: Allocation) {
-        self.borrow_mut().free(allocation)
+        self.lock().unwrap().free(allocation)
     }
 }

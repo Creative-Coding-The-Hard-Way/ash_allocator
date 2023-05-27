@@ -15,6 +15,7 @@ use {
     },
     anyhow::Context,
     ash::vk,
+    std::sync::{Arc, Mutex},
 };
 
 pub use self::{
@@ -34,8 +35,10 @@ pub use self::{
 /// The memory allocator owns a composable allocator instance which actually
 /// does the work of memory allocation. This allows the behavior to be
 /// customized by composing allocators.
+#[derive(Clone)]
 pub struct MemoryAllocator {
-    internal_allocator: Box<dyn ComposableAllocator>,
+    internal_allocator:
+        Arc<Mutex<Box<dyn ComposableAllocator + 'static + Send>>>,
     memory_properties: MemoryProperties,
     device: ash::Device,
 }
@@ -59,7 +62,7 @@ impl MemoryAllocator {
     /// Unsafe because:
     ///  - the logical device must not be destroyed while the MemoryAllocator is
     ///    still in use
-    pub unsafe fn new<T: ComposableAllocator + 'static>(
+    pub unsafe fn new<T: ComposableAllocator + 'static + Send>(
         instance: &ash::Instance,
         device: ash::Device,
         physical_device: vk::PhysicalDevice,
@@ -72,7 +75,9 @@ impl MemoryAllocator {
             memory_properties
         );
         Self {
-            internal_allocator: Box::new(internal_allocator),
+            internal_allocator: Arc::new(Mutex::new(Box::new(
+                internal_allocator,
+            ))),
             memory_properties,
             device,
         }
@@ -129,8 +134,12 @@ impl MemoryAllocator {
         };
 
         let allocation = {
-            let result =
-                unsafe { self.internal_allocator.allocate(requirements) };
+            let result = unsafe {
+                self.internal_allocator
+                    .lock()
+                    .unwrap()
+                    .allocate(requirements)
+            };
             if result.is_err() {
                 self.device.destroy_buffer(buffer, None);
             }
@@ -206,8 +215,12 @@ impl MemoryAllocator {
         };
 
         let allocation = {
-            let result =
-                unsafe { self.internal_allocator.allocate(requirements) };
+            let result = unsafe {
+                self.internal_allocator
+                    .lock()
+                    .unwrap()
+                    .allocate(requirements)
+            };
             if result.is_err() {
                 self.device.destroy_image(image, None);
             }
@@ -247,7 +260,7 @@ impl MemoryAllocator {
         allocation: Allocation,
     ) {
         self.device.destroy_buffer(buffer, None);
-        self.internal_allocator.free(allocation);
+        self.internal_allocator.lock().unwrap().free(allocation);
     }
 
     /// Free an image and the associated allocated memory.
@@ -265,7 +278,7 @@ impl MemoryAllocator {
         allocation: Allocation,
     ) {
         self.device.destroy_image(image, None);
-        self.internal_allocator.free(allocation);
+        self.internal_allocator.lock().unwrap().free(allocation);
     }
 }
 

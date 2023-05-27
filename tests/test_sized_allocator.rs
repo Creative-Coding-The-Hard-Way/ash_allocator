@@ -31,15 +31,15 @@ fn test_small_allocation() -> Result<()> {
         allocator.allocate(allocation_requirements)?
     };
     assert_eq!(allocation.size_in_bytes(), 32);
-    assert_eq!(small_allocator.borrow().active_allocations, 1);
-    assert_eq!(large_allocator.borrow().active_allocations, 0);
+    assert_eq!(small_allocator.lock().unwrap().active_allocations, 1);
+    assert_eq!(large_allocator.lock().unwrap().active_allocations, 0);
 
     unsafe {
         allocator.free(allocation);
     }
 
-    assert_eq!(small_allocator.borrow().active_allocations, 0);
-    assert_eq!(large_allocator.borrow().active_allocations, 0);
+    assert_eq!(small_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(large_allocator.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }
@@ -65,15 +65,15 @@ fn test_large_allocation() -> Result<()> {
         allocator.allocate(allocation_requirements)?
     };
     assert_eq!(allocation.size_in_bytes(), 62);
-    assert_eq!(small_allocator.borrow().active_allocations, 0);
-    assert_eq!(large_allocator.borrow().active_allocations, 1);
+    assert_eq!(small_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(large_allocator.lock().unwrap().active_allocations, 1);
 
     unsafe {
         allocator.free(allocation);
     }
 
-    assert_eq!(small_allocator.borrow().active_allocations, 0);
-    assert_eq!(large_allocator.borrow().active_allocations, 0);
+    assert_eq!(small_allocator.lock().unwrap().active_allocations, 0);
+    assert_eq!(large_allocator.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }

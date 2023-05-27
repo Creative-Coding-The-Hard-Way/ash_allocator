@@ -3,10 +3,13 @@ use {
         Allocation, AllocationRequirements, AllocatorError,
         ComposableAllocator, MemoryProperties, MemoryTypePoolAllocator,
     },
-    std::{cell::RefCell, collections::HashMap, rc::Rc},
+    std::{
+        collections::HashMap,
+        sync::{Arc, Mutex},
+    },
 };
 
-type SharedAllocator<T> = Rc<RefCell<T>>;
+type SharedAllocator<T> = Arc<Mutex<T>>;
 
 pub struct PoolAllocator<A: ComposableAllocator> {
     typed_pools: HashMap<usize, MemoryTypePoolAllocator<SharedAllocator<A>>>,
@@ -19,7 +22,7 @@ impl<A: ComposableAllocator> PoolAllocator<A> {
         page_size: u64,
         allocator: A,
     ) -> Self {
-        let allocator = SharedAllocator::new(RefCell::new(allocator));
+        let allocator = SharedAllocator::new(Mutex::new(allocator));
         let typed_pools = memory_properties
             .types()
             .iter()

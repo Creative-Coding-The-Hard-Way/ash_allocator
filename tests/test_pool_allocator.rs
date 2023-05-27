@@ -58,7 +58,7 @@ fn test_allocate_and_free() -> Result<()> {
 
     assert_eq!(a1.size_in_bytes(), 32);
     assert_eq!(a2.size_in_bytes(), 32);
-    assert_eq!(fake_allocator.as_ref().borrow().active_allocations, 1);
+    assert_eq!(fake_allocator.lock().unwrap().active_allocations, 1);
 
     let a3 = unsafe {
         allocator.allocate(AllocationRequirements {
@@ -70,7 +70,7 @@ fn test_allocate_and_free() -> Result<()> {
     };
 
     assert_eq!(a3.size_in_bytes(), 32);
-    assert_eq!(fake_allocator.as_ref().borrow().active_allocations, 2);
+    assert_eq!(fake_allocator.lock().unwrap().active_allocations, 2);
 
     unsafe {
         allocator.free(a1);
@@ -78,7 +78,7 @@ fn test_allocate_and_free() -> Result<()> {
         allocator.free(a3);
     }
 
-    assert_eq!(fake_allocator.as_ref().borrow().active_allocations, 0);
+    assert_eq!(fake_allocator.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }

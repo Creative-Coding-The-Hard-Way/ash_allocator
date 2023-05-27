@@ -46,9 +46,9 @@ pub fn test_multiple_allocations() -> Result<()> {
         result.unwrap()
     };
 
-    assert_eq!(fake.borrow().active_allocations, 2);
+    assert_eq!(fake.lock().unwrap().active_allocations, 2);
     assert_eq!(
-        fake.borrow().allocations,
+        fake.lock().unwrap().allocations,
         &[
             AllocationRequirements {
                 size_in_bytes: 512,
@@ -69,7 +69,7 @@ pub fn test_multiple_allocations() -> Result<()> {
         allocator.free(allocation_3);
     };
 
-    assert_eq!(fake.borrow().active_allocations, 0);
+    assert_eq!(fake.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }
@@ -94,18 +94,18 @@ pub fn test_allocate_and_free() -> Result<()> {
     };
 
     assert_eq!(
-        fake.borrow().allocations[0],
+        fake.lock().unwrap().allocations[0],
         AllocationRequirements {
             size_in_bytes: 512,
             alignment: 1,
             ..allocation_requirements
         }
     );
-    assert_eq!(fake.borrow().active_allocations, 1);
+    assert_eq!(fake.lock().unwrap().active_allocations, 1);
 
     unsafe { allocator.free(allocation) };
 
-    assert_eq!(fake.borrow().active_allocations, 0);
+    assert_eq!(fake.lock().unwrap().active_allocations, 0);
 
     Ok(())
 }
