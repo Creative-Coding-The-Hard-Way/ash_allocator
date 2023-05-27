@@ -282,6 +282,19 @@
 <a href="#282" id="282">282</a>
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>composable_allocator;
 <span class="kw">mod </span>dedicated_allocator;
 <span class="kw">mod </span>device_allocator;
@@ -299,6 +312,7 @@
     },
     anyhow::Context,
     ash::vk,
+    std::sync::{Arc, Mutex},
 };
 
 <span class="kw">pub use </span><span class="self">self</span>::{
@@ -318,8 +332,10 @@
 /// The memory allocator owns a composable allocator instance which actually
 /// does the work of memory allocation. This allows the behavior to be
 /// customized by composing allocators.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>MemoryAllocator {
-    internal_allocator: Box&lt;<span class="kw">dyn </span>ComposableAllocator&gt;,
+    internal_allocator:
+        Arc&lt;Mutex&lt;Box&lt;<span class="kw">dyn </span>ComposableAllocator + <span class="lifetime">&#39;static </span>+ Send&gt;&gt;&gt;,
     memory_properties: MemoryProperties,
     device: ash::Device,
 }
@@ -343,7 +359,7 @@
     /// Unsafe because:
     ///  - the logical device must not be destroyed while the MemoryAllocator is
     ///    still in use
-    </span><span class="kw">pub unsafe fn </span>new&lt;T: ComposableAllocator + <span class="lifetime">&#39;static</span>&gt;(
+    </span><span class="kw">pub unsafe fn </span>new&lt;T: ComposableAllocator + <span class="lifetime">&#39;static </span>+ Send&gt;(
         instance: <span class="kw-2">&amp;</span>ash::Instance,
         device: ash::Device,
         physical_device: vk::PhysicalDevice,
@@ -356,7 +372,9 @@
             memory_properties
         );
         <span class="self">Self </span>{
-            internal_allocator: Box::new(internal_allocator),
+            internal_allocator: Arc::new(Mutex::new(Box::new(
+                internal_allocator,
+            ))),
             memory_properties,
             device,
         }
@@ -413,8 +431,12 @@
         </span>};
 
         <span class="kw">let </span>allocation = {
-            <span class="kw">let </span>result =
-                <span class="kw">unsafe </span>{ <span class="self">self</span>.internal_allocator.allocate(requirements) };
+            <span class="kw">let </span>result = <span class="kw">unsafe </span>{
+                <span class="self">self</span>.internal_allocator
+                    .lock()
+                    .unwrap()
+                    .allocate(requirements)
+            };
             <span class="kw">if </span>result.is_err() {
                 <span class="self">self</span>.device.destroy_buffer(buffer, <span class="prelude-val">None</span>);
             }
@@ -490,8 +512,12 @@
         </span>};
 
         <span class="kw">let </span>allocation = {
-            <span class="kw">let </span>result =
-                <span class="kw">unsafe </span>{ <span class="self">self</span>.internal_allocator.allocate(requirements) };
+            <span class="kw">let </span>result = <span class="kw">unsafe </span>{
+                <span class="self">self</span>.internal_allocator
+                    .lock()
+                    .unwrap()
+                    .allocate(requirements)
+            };
             <span class="kw">if </span>result.is_err() {
                 <span class="self">self</span>.device.destroy_image(image, <span class="prelude-val">None</span>);
             }
@@ -531,7 +557,7 @@
         allocation: Allocation,
     ) {
         <span class="self">self</span>.device.destroy_buffer(buffer, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.internal_allocator.free(allocation);
+        <span class="self">self</span>.internal_allocator.lock().unwrap().free(allocation);
     }
 
     <span class="doccomment">/// Free an image and the associated allocated memory.
@@ -549,7 +575,7 @@
         allocation: Allocation,
     ) {
         <span class="self">self</span>.device.destroy_image(image, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.internal_allocator.free(allocation);
+        <span class="self">self</span>.internal_allocator.lock().unwrap().free(allocation);
     }
 }
 

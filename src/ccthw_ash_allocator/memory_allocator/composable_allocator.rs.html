@@ -78,12 +78,12 @@
 <a href="#78" id="78">78</a>
 </pre><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">crate</span>::{Allocation, AllocationRequirements, AllocatorError},
-    std::{cell::RefCell, rc::Rc},
+    std::sync::{Arc, Mutex},
 };
 
 <span class="doccomment">/// Move an composable allocator into a Rc RefCell.
-</span><span class="kw">pub fn </span>into_shared&lt;T: ComposableAllocator&gt;(allocator: T) -&gt; Rc&lt;RefCell&lt;T&gt;&gt; {
-    Rc::new(RefCell::new(allocator))
+</span><span class="kw">pub fn </span>into_shared&lt;T: ComposableAllocator&gt;(allocator: T) -&gt; Arc&lt;Mutex&lt;T&gt;&gt; {
+    Arc::new(Mutex::new(allocator))
 }
 
 <span class="kw">pub trait </span>ComposableAllocator {
@@ -139,7 +139,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; ComposableAllocator <span class="kw">for </span>Rc&lt;RefCell&lt;T&gt;&gt;
+<span class="kw">impl</span>&lt;T&gt; ComposableAllocator <span class="kw">for </span>Arc&lt;Mutex&lt;T&gt;&gt;
 <span class="kw">where
     </span>T: ComposableAllocator,
 {
@@ -147,11 +147,11 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         allocation_requirements: AllocationRequirements,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Allocation, AllocatorError&gt; {
-        <span class="self">self</span>.borrow_mut().allocate(allocation_requirements)
+        <span class="self">self</span>.lock().unwrap().allocate(allocation_requirements)
     }
 
     <span class="kw">unsafe fn </span>free(<span class="kw-2">&amp;mut </span><span class="self">self</span>, allocation: Allocation) {
-        <span class="self">self</span>.borrow_mut().free(allocation)
+        <span class="self">self</span>.lock().unwrap().free(allocation)
     }
 }
 </code></pre></div>
