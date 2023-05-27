@@ -131,6 +131,14 @@ struct MappedPtr {
     map_count: u32,
 }
 
+/// # Safety
+///
+/// MappedPtr does not impl Send by default because it contains a *mut c_void.
+/// The pointer is provided by Vulkan when host memory is mapped. The pointer
+/// does not reference thread-local data, and can be safely moved between
+/// threads.
+unsafe impl Send for MappedPtr {}
+
 impl Default for MappedPtr {
     fn default() -> Self {
         Self {
