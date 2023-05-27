@@ -139,6 +139,14 @@
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
 </pre><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">crate</span>::AllocatorError,
     anyhow::Context,
@@ -271,6 +279,14 @@
     host_accessible_ptr: <span class="kw-2">*mut </span>c_void,
     map_count: u32,
 }
+
+<span class="doccomment">/// # Safety
+///
+/// MappedPtr does not impl Send by default because it contains a *mut c_void.
+/// The pointer is provided by Vulkan when host memory is mapped. The pointer
+/// does not reference thread-local data, and can be safely moved between
+/// threads.
+</span><span class="kw">unsafe impl </span>Send <span class="kw">for </span>MappedPtr {}
 
 <span class="kw">impl </span>Default <span class="kw">for </span>MappedPtr {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
