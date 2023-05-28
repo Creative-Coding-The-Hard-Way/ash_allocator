@@ -147,6 +147,12 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
 </pre><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">crate</span>::AllocatorError,
     anyhow::Context,
@@ -287,6 +293,12 @@
 /// does not reference thread-local data, and can be safely moved between
 /// threads.
 </span><span class="kw">unsafe impl </span>Send <span class="kw">for </span>MappedPtr {}
+
+<span class="doccomment">/// # Safety
+///
+/// Mapped pointers can be safely used from multiple threads BUT access must be
+/// externally synchronized.
+</span><span class="kw">unsafe impl </span>Sync <span class="kw">for </span>MappedPtr {}
 
 <span class="kw">impl </span>Default <span class="kw">for </span>MappedPtr {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
