@@ -139,6 +139,12 @@ struct MappedPtr {
 /// threads.
 unsafe impl Send for MappedPtr {}
 
+/// # Safety
+///
+/// Mapped pointers can be safely used from multiple threads BUT access must be
+/// externally synchronized.
+unsafe impl Sync for MappedPtr {}
+
 impl Default for MappedPtr {
     fn default() -> Self {
         Self {

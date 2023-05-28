@@ -1,8 +1,12 @@
 //! Tests where memory for images and buffers is allocated and freed.
 
 use {
-    anyhow::Result, ash::vk, ccthw_ash_allocator::create_system_allocator,
-    ccthw_ash_instance::VulkanHandle, scopeguard::defer, std::sync::Arc,
+    anyhow::Result,
+    ash::vk,
+    ccthw_ash_allocator::{create_system_allocator, Allocation},
+    ccthw_ash_instance::VulkanHandle,
+    scopeguard::defer,
+    std::sync::Arc,
 };
 
 mod common;
@@ -102,43 +106,33 @@ pub fn allocate_buffer_on_thread() -> Result<()> {
     };
     let mut a2 = allocator.clone();
 
-    let thread = std::thread::spawn(move || -> Result<()> {
-        let (buffer, allocation) = unsafe {
-            let create_info = vk::BufferCreateInfo {
-                flags: vk::BufferCreateFlags::empty(),
-                usage: vk::BufferUsageFlags::STORAGE_BUFFER,
-                size: 64_000,
-                sharing_mode: vk::SharingMode::EXCLUSIVE,
-                queue_family_index_count: 0,
-                p_queue_family_indices: std::ptr::null(),
-                ..Default::default()
+    let thread =
+        std::thread::spawn(move || -> Result<(vk::Buffer, Allocation)> {
+            let (buffer, allocation) = unsafe {
+                let create_info = vk::BufferCreateInfo {
+                    flags: vk::BufferCreateFlags::empty(),
+                    usage: vk::BufferUsageFlags::STORAGE_BUFFER,
+                    size: 64_000,
+                    sharing_mode: vk::SharingMode::EXCLUSIVE,
+                    queue_family_index_count: 0,
+                    p_queue_family_indices: std::ptr::null(),
+                    ..Default::default()
+                };
+                allocator.allocate_buffer(
+                    &create_info,
+                    vk::MemoryPropertyFlags::DEVICE_LOCAL,
+                )?
             };
-            allocator.allocate_buffer(
-                &create_info,
-                vk::MemoryPropertyFlags::DEVICE_LOCAL,
-            )?
-        };
-        defer! { unsafe { allocator.free_buffer(buffer, allocation.clone()) }; }
 
-        log::info!("Second Thread Allocation {:#?}", &allocation);
-        Ok(())
-    });
+            log::info!("Second Thread Allocation {:#?}", &allocation);
+            Ok((buffer, allocation))
+        });
 
-    let (buffer, allocation) = unsafe {
-        let create_info = vk::BufferCreateInfo {
-            flags: vk::BufferCreateFlags::empty(),
-            usage: vk::BufferUsageFlags::STORAGE_BUFFER,
-            size: 64_000,
-            sharing_mode: vk::SharingMode::EXCLUSIVE,
-            queue_family_index_count: 0,
-            p_queue_family_indices: std::ptr::null(),
-            ..Default::default()
-        };
-        a2.allocate_buffer(&create_info, vk::MemoryPropertyFlags::DEVICE_LOCAL)?
+    let (buffer, allocation) = thread.join().unwrap()?;
+
+    unsafe {
+        a2.free_buffer(buffer, allocation);
     };
-    defer! { unsafe { a2.free_buffer(buffer, allocation.clone()) }; }
 
-    log::info!("Main Thread Allocation {:#?}", &allocation);
-
-    thread.join().unwrap()
+    Ok(())
 }
